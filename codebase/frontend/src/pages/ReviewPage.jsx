@@ -37,11 +37,17 @@ export default function ReviewPage({
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [showLockWarningModal, setShowLockWarningModal] = useState(false);
   const [showLockConfirmModal, setShowLockConfirmModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   const getInvalidSelectionItems = () => {
     return billItems.filter(item => {
       const selections = itemSelections[item.id] || [];
-      return selections.length !== item.qty;
+      return selections.length < item.qty;
     });
   };
 
@@ -76,9 +82,19 @@ export default function ReviewPage({
 
   // Delete item
   const handleDeleteItem = (id) => {
-    const newItems = billItems.filter(item => item.id !== id);
-    setBillItems(newItems);
-    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
+    const item = billItems.find(i => i.id === id);
+    const itemName = item ? item.name : 'món ăn này';
+    setConfirmModal({
+      show: true,
+      title: 'Xóa món ăn',
+      message: `Bạn có chắc chắn muốn xóa món "${itemName}" không?`,
+      onConfirm: () => {
+        const newItems = billItems.filter(i => i.id !== id);
+        setBillItems(newItems);
+        if (billId) updateBill(billId, { items: newItems }).catch(console.error);
+        setConfirmModal(prev => ({ ...prev, show: false }));
+      }
+    });
   };
 
   // Edit item name
@@ -106,12 +122,43 @@ export default function ReviewPage({
 
   // Correction Path: Convert food item to shared fee
   const handleConvertToSharedFee = (item) => {
-    const newItems = billItems.filter(i => i.id !== item.id);
-    const newFee = { id: item.id, name: item.name, amount: item.price * item.qty };
-    const newFees = [...sharedFees, newFee];
-    setBillItems(newItems);
-    setSharedFees(newFees);
-    if (billId) updateBill(billId, { items: newItems, shared_fees: newFees }).catch(console.error);
+    setConfirmModal({
+      show: true,
+      title: 'Chuyển thành phí chung',
+      message: `Bạn có chắc chắn muốn chuyển món "${item.name}" thành phí dùng chung (chia đều cả nhóm) không?`,
+      onConfirm: () => {
+        const newItems = billItems.filter(i => i.id !== item.id);
+        const newFee = { id: item.id, name: item.name, amount: item.price * item.qty };
+        const newFees = [...sharedFees, newFee];
+        setBillItems(newItems);
+        setSharedFees(newFees);
+        if (billId) updateBill(billId, { items: newItems, shared_fees: newFees }).catch(console.error);
+        setConfirmModal(prev => ({ ...prev, show: false }));
+      }
+    });
+  };
+
+  // Correction Path: Convert shared fee to personal item
+  const handleConvertToPersonalItem = (fee) => {
+    setConfirmModal({
+      show: true,
+      title: 'Chuyển thành món riêng',
+      message: `Bạn có chắc chắn muốn chuyển phí "${fee.name}" thành món ăn riêng để mọi người tự chọn không?`,
+      onConfirm: () => {
+        const newFees = sharedFees.filter(f => f.id !== fee.id);
+        const newItem = {
+          id: fee.id,
+          name: fee.name,
+          qty: 1,
+          price: fee.amount
+        };
+        const newItems = [...billItems, newItem];
+        setBillItems(newItems);
+        setSharedFees(newFees);
+        if (billId) updateBill(billId, { items: newItems, shared_fees: newFees }).catch(console.error);
+        setConfirmModal(prev => ({ ...prev, show: false }));
+      }
+    });
   };
 
   // Resolve Low-confidence Combo Item
@@ -398,7 +445,7 @@ export default function ReviewPage({
                       </div>
                     </div>
                     
-                    <div className="bill-item-meta">
+                    <div className="bill-item-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span>SL:</span>
                       <input 
                         type="number" 
@@ -406,6 +453,33 @@ export default function ReviewPage({
                         onChange={(e) => handleQtyChange(item.id, e.target.value)}
                         style={{ width: '40px', background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', color: 'var(--color-text-primary)', textAlign: 'center', borderRadius: '4px' }}
                       />
+                      <button 
+                        onClick={() => handleConvertToSharedFee(item)}
+                        style={{
+                          background: '#fdf2f8',
+                          border: '1px solid #fbcfe8',
+                          color: '#db2777',
+                          borderRadius: '6px',
+                          padding: '2px 8px',
+                          fontSize: '0.65rem',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                          marginLeft: '10px',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          transition: 'all 0.15s ease-in-out'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = '#fce7f3';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = '#fdf2f8';
+                        }}
+                        title="Chuyển món ăn này thành phí dùng chung để chia đều cho mọi người"
+                      >
+                        Thành phí chung
+                      </button>
                     </div>
                     {item.aiNote && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#b45309', fontSize: '0.72rem', marginTop: '6px', fontWeight: 500 }}>
@@ -477,8 +551,36 @@ export default function ReviewPage({
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {sharedFees.map(fee => (
-            <div key={fee.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-              <span style={{ color: 'var(--color-text-primary)' }}>• {fee.name}</span>
+            <div key={fee.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', padding: '4px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: 'var(--color-text-primary)' }}>• {fee.name}</span>
+                <button 
+                  onClick={() => handleConvertToPersonalItem(fee)}
+                  style={{
+                    background: '#fdf2f8',
+                    border: '1px solid #fbcfe8',
+                    color: '#db2777',
+                    borderRadius: '6px',
+                    padding: '2px 8px',
+                    fontSize: '0.65rem',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    transition: 'all 0.15s ease-in-out'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#fce7f3';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#fdf2f8';
+                  }}
+                  title="Chuyển phí này thành món ăn riêng để mọi người tự chọn"
+                >
+                  Thành món riêng
+                </button>
+              </div>
               <span style={{ fontWeight: 600 }}>{fee.amount.toLocaleString()} đ</span>
             </div>
           ))}
@@ -517,8 +619,8 @@ export default function ReviewPage({
                   </span>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)' }}>
-                      Phần tiền: <strong style={{ color: 'var(--color-text-primary)' }}>{cost.toLocaleString()} đ</strong>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
+                      Phần tiền: <strong style={{ color: 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{cost.toLocaleString()} đ</strong>
                     </div>
                     {/* Selected items list */}
                     <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '240px' }}>
@@ -557,13 +659,13 @@ export default function ReviewPage({
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                   {m.id === 'host' ? (
                     hasPaid ? (
-                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)', border: '1.5px solid var(--color-success)', fontSize: '0.65rem', fontWeight: 'bold' }}>
-                        👑 Host (Đã thanh toán)
+                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)', border: '1.5px solid var(--color-success)', fontSize: '0.65rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                        Host (Đã thanh toán)
                       </span>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                        <span className="badge" style={{ background: 'rgba(216, 45, 139, 0.08)', color: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', fontSize: '0.65rem', fontWeight: 'bold' }}>
-                          👑 Host ({billStatus === 'locked' ? 'Chờ thanh toán' : 'Đang chọn món'})
+                        <span className="badge" style={{ background: 'rgba(216, 45, 139, 0.08)', color: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', fontSize: '0.65rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                          Host ({billStatus === 'locked' ? 'Chờ thanh toán' : 'Đang chọn món'})
                         </span>
                         {billStatus === 'picking' && (
                           <button 
@@ -913,6 +1015,43 @@ export default function ReviewPage({
         />
       )}
 
+      {confirmModal.show && (
+        <div className="modal-overlay" onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}>
+          <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{ padding: '24px', maxWidth: '340px', textAlign: 'center', borderRadius: '16px' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>⚠️</div>
+            <h3 className="title-lg" style={{ fontSize: '1.1rem', marginBottom: '10px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+              {confirmModal.title}
+            </h3>
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginBottom: '20px', lineHeight: '1.4' }}>
+              {confirmModal.message}
+            </p>
+            <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+              <button 
+                onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))} 
+                className="btn btn-secondary"
+                style={{ flex: 1, padding: '10px', fontSize: '0.82rem' }}
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={confirmModal.onConfirm} 
+                className="btn btn-primary"
+                style={{ 
+                  flex: 1, 
+                  padding: '10px', 
+                  fontSize: '0.82rem', 
+                  background: 'var(--gradient-momo)', 
+                  border: 'none', 
+                  color: 'white' 
+                }}
+              >
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showShareModal && (
         <div className="modal-overlay" onClick={() => setShowShareModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -990,12 +1129,10 @@ export default function ReviewPage({
               {getInvalidSelectionItems().map(item => {
                 const selections = itemSelections[item.id] || [];
                 const selectedQty = selections.length;
-                const statusText = selectedQty < item.qty ? 'Thiếu' : 'Thừa';
-                const statusColor = selectedQty < item.qty ? 'var(--color-warning)' : 'var(--color-danger)';
                 return (
                   <div key={item.id} style={{ color: 'var(--color-text-primary)', padding: '4px 0', borderBottom: '1px dashed rgba(0,0,0,0.04)', fontWeight: 500, display: 'flex', justifyContent: 'space-between' }}>
                     <span>• {item.name}</span>
-                    <span style={{ color: statusColor, fontWeight: 700 }}>Đã chọn: {selectedQty}/{item.qty} ({statusText})</span>
+                    <span style={{ color: 'var(--color-warning)', fontWeight: 700 }}>Đã chọn: {selectedQty}/{item.qty} (Chưa đủ)</span>
                   </div>
                 );
               })}
