@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import UploadPage from './pages/UploadPage';
 import ReviewPage from './pages/ReviewPage';
 import PickItemsPage from './pages/PickItemsPage';
-import { mockBillResult } from './data/mockBillData';
 import { supabase, createBill, getBill, subscribeToBill } from './services/supabaseService';
 
 const loadStored = (key, fallback) => {
@@ -20,9 +19,9 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [billId, setBillId] = useState(initialBillId);
   const [receiptImage, setReceiptImage] = useState(() => loadStoredString('momo_split_receiptImage', ''));
-  const [restaurant, setRestaurant] = useState(() => loadStoredString('momo_split_restaurant', mockBillResult.restaurant));
-  const [billItems, setBillItems] = useState(() => loadStored('momo_split_billItems', mockBillResult.items));
-  const [sharedFees, setSharedFees] = useState(() => loadStored('momo_split_sharedFees', mockBillResult.sharedFees));
+  const [restaurant, setRestaurant] = useState(() => loadStoredString('momo_split_restaurant', ''));
+  const [billItems, setBillItems] = useState(() => loadStored('momo_split_billItems', []));
+  const [sharedFees, setSharedFees] = useState(() => loadStored('momo_split_sharedFees', []));
   const [members, setMembers] = useState(() => loadStored('momo_split_members', [
     { id: 'host', name: 'Hoàng Anh (Host)', avatar: 'HA', color: 'member-avatar-pink' },
     { id: 'linh', name: 'Linh', avatar: 'L', color: 'member-avatar-blue' },
@@ -156,9 +155,9 @@ export default function App() {
 
     setReceiptImage('');
     setBillId('');
-    setRestaurant(mockBillResult.restaurant);
-    setBillItems(JSON.parse(JSON.stringify(mockBillResult.items)));
-    setSharedFees(JSON.parse(JSON.stringify(mockBillResult.sharedFees)));
+    setRestaurant('');
+    setBillItems([]);
+    setSharedFees([]);
     setMembers([
       { id: 'host', name: 'Hoàng Anh (Host)', avatar: 'HA', color: 'member-avatar-pink' },
       { id: 'linh', name: 'Linh', avatar: 'L', color: 'member-avatar-blue' },

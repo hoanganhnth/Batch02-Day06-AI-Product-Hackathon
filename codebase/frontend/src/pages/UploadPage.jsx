@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+const scanEndpoint = API_URL ? API_URL.replace(/\/$/, '') + '/api/scan-receipt' : '';
 
 export default function UploadPage({ setReceiptImage, onScanComplete, setBillItems, setSharedFees, setRestaurant }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -100,7 +101,7 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
 
       // Step 2: Call AI backend
       setScanStep(1);
-      const response = await fetch(`${API_URL}/api/scan-receipt`, {
+      const response = await fetch(scanEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64 }),
@@ -122,7 +123,12 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
       onScanComplete(result);
     } catch (err) {
       console.error('Scan error:', err);
-      setScanError(err.message || 'Có lỗi xảy ra khi quét hóa đơn.');
+      const isNetworkError = err instanceof TypeError && err.message === 'Failed to fetch';
+      setScanError(
+        isNetworkError
+          ? 'Không gọi được AI backend (' + (scanEndpoint || 'chưa cấu hình VITE_API_URL') + '). Hãy kiểm tra tunnel/backend còn chạy và frontend đã build lại đúng URL.'
+          : err.message || 'Có lỗi xảy ra khi quét hóa đơn.'
+      );
       setIsScanning(false);
     }
   };
@@ -202,10 +208,9 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
           )}
         </div>
       </div>
-
       <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-muted)', padding: '0 20px' }}>
         {API_URL
-          ? '* Dữ liệu hóa đơn được xử lý trực tiếp bằng mô hình Vision AI bảo mật cao.'
+          ? '* AI backend: ' + scanEndpoint
           : '* Đang chạy chế độ demo — chưa kết nối AI backend.'}
       </div>
     </div>

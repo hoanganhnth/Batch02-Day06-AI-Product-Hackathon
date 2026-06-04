@@ -312,15 +312,7 @@ export default function ReviewPage({
         </div>
       )}
 
-      {/* Warning Notice about AI Mistakes */}
-      {billItems.some(i => i.aiMistake) && (
-        <div className="alert-note">
-          <span>⚠️</span>
-          <div>
-            <strong>AI Phát hiện lỗi nhầm lẫn:</strong> Một vài dòng (Khăn lạnh, Gửi xe) có thể là phí chung nhưng AI đang xếp nhầm vào món ăn lẻ. Hãy bấm <strong>"Chuyển thành Phí chung"</strong> để sửa lỗi.
-          </div>
-        </div>
-      )}
+
 
       {/* 3. Items list scanned by AI */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -330,27 +322,18 @@ export default function ReviewPage({
 
         <div className="bill-list">
           {billItems.map(item => {
-            const isLowConf = item.confidence === 'low';
-            const isComboItem = isLowConf || item.confidence === 'resolved' || item.isCombo || item.id === 2;
-            const isMistake = item.aiMistake;
             const selections = itemSelections[item.id] || [];
             const totalSelected = selections.length;
 
             let progressBadge = null;
-            if (totalSelected === 0) {
-              progressBadge = <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.05)', color: 'var(--color-danger)', border: '1px solid rgba(239, 68, 68, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Chưa chọn (0/{item.qty})</span>;
-            } else if (totalSelected < item.qty) {
-              progressBadge = <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.05)', color: 'var(--color-warning)', border: '1px solid rgba(245, 158, 11, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Chưa đủ ({totalSelected}/{item.qty})</span>;
-            } else if (totalSelected === item.qty) {
-              progressBadge = <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.06)', color: 'var(--color-success)', border: '1px solid rgba(16, 185, 129, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Đủ ({totalSelected}/{item.qty})</span>;
-            } else {
-              progressBadge = <span className="badge" style={{ background: 'rgba(139, 92, 246, 0.05)', color: '#6d28d9', border: '1px solid rgba(139, 92, 246, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Chia {totalSelected} ({totalSelected}/{item.qty})</span>;
+            if (totalSelected > 0) {
+              progressBadge = <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.06)', color: 'var(--color-success)', border: '1px solid rgba(16, 185, 129, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Đã chọn ({totalSelected})</span>;
             }
 
             return (
               <div 
                 key={item.id} 
-                className={`bill-item-card ${isComboItem ? 'low-conf' : ''} ${isMistake ? 'mistake' : ''}`}
+                className="bill-item-card"
               >
                 <div className="bill-item-main">
                   <div className="bill-item-info">
@@ -358,8 +341,6 @@ export default function ReviewPage({
                       <span style={{ flex: 1 }}>{item.name}</span>
                       <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
                         {progressBadge}
-                        {isLowConf && <span className="badge badge-low-conf" style={{ whiteSpace: 'nowrap' }}>Combo?</span>}
-                        {isMistake && <span className="badge badge-mistake" style={{ whiteSpace: 'nowrap' }}>Nhầm Lẫn AI</span>}
                       </div>
                     </div>
                     
@@ -393,29 +374,7 @@ export default function ReviewPage({
                   </div>
                 </div>
 
-                {/* Actions row for Low confidence or Correction paths */}
-                {(isComboItem || isMistake) && (
-                  <div className="item-actions-panel">
-                    {isComboItem && (
-                      <button 
-                        onClick={() => setComboItemToResolve(item)} 
-                        className="btn btn-warning" 
-                        style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
-                      >
-                        ⚡️ {item.confidence === 'resolved' ? "Thay đổi cách chia Combo" : "⚡️ Giải quyết món Combo"}
-                      </button>
-                    )}
-                    {isMistake && (
-                      <button 
-                        onClick={() => handleConvertToSharedFee(item)} 
-                        className="btn btn-secondary" 
-                        style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px', color: 'var(--color-primary)', borderColor: 'rgba(216,45,139,0.2)' }}
-                      >
-                        🔄 Chuyển thành Phí chung (Sửa Lỗi)
-                      </button>
-                    )}
-                  </div>
-                )}
+                {/* Actions row removed per user request */}
               </div>
             );
           })}

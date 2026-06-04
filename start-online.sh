@@ -1,11 +1,11 @@
 #!/bin/bash
-echo "🔄 1. Đang mở tunnel cho Backend..."
-ssh -o StrictHostKeyChecking=no -R 80:localhost:8000 nokey@localhost.run > tunnel.log 2>&1 &
+echo "🔄 1. Đang mở tunnel cho Backend bằng Pinggy..."
+ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:8000 a.pinggy.io > tunnel.log 2>&1 &
 SSH_PID=$!
 
-echo "⏳ Đang chờ lấy URL (mất khoảng 5 giây)..."
-sleep 5
-URL=$(grep -o 'https://[a-zA-Z0-9.-]*\.lhr\.life' tunnel.log | head -n 1)
+echo "⏳ Đang chờ lấy URL (mất khoảng 6 giây)..."
+sleep 6
+URL=$(grep -o 'https://[a-zA-Z0-9.-]*\.pinggy-free\.link' tunnel.log | head -n 1)
 
 if [ -z "$URL" ]; then
   echo "❌ Lỗi: Không lấy được URL. Log:"
