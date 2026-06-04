@@ -3,62 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Bill Splitting — AI Product Labs</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<title>Smart Bill Splitting — AI Product Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #080c14;
-    --surface: #0e1420;
-    --border: rgba(255,255,255,0.07);
+    --bg: #06090f;
+    --surface: #0c1018;
+    --border: rgba(255,255,255,0.06);
     --cyan: #00e5c8;
-    --cyan-dim: rgba(0,229,200,0.12);
-    --cyan-mid: rgba(0,229,200,0.25);
+    --cyan-dim: rgba(0,229,200,0.10);
+    --cyan-mid: rgba(0,229,200,0.22);
+    --cyan-glow: rgba(0,229,200,0.35);
     --gold: #f5c842;
+    --gold-dim: rgba(245,200,66,0.10);
+    --gold-mid: rgba(245,200,66,0.25);
     --red: #ff5c5c;
+    --red-dim: rgba(255,92,92,0.10);
+    --pink: #D82D8B;
+    --pink-dim: rgba(216,45,139,0.12);
+    --purple: #9B2FAD;
     --text: #e8edf5;
     --muted: #64748b;
-    --card: rgba(255,255,255,0.035);
-    --slide-w: 2133px;
-    --slide-h: 1200px;
+    --card: rgba(255,255,255,0.03);
+    --slide-w: 1920px;
+    --slide-h: 1080px;
   }
 
-  html, body { width: 100%; height: 100%; overflow: hidden; background: #02050d; font-family: 'DM Sans', sans-serif; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #02040a; font-family: 'DM Sans', sans-serif; color: var(--text); }
 
-  /* ── DECK WRAPPER ── */
+  /* ── DECK ── */
   #deck { position: relative; width: 100vw; height: 100vh; }
 
-  /* ── SLIDES ── */
   .slide {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none;
-    transition: opacity 0.55s cubic-bezier(.4,0,.2,1), transform 0.55s cubic-bezier(.4,0,.2,1);
-    transform: translateY(32px);
+    transition: opacity 0.5s cubic-bezier(.4,0,.2,1), transform 0.5s cubic-bezier(.4,0,.2,1);
+    transform: translateY(28px);
   }
-  .slide.active {
-    opacity: 1; pointer-events: all; transform: translateY(0);
-  }
-  .slide.exit {
-    opacity: 0; transform: translateY(-32px);
-  }
+  .slide.active { opacity: 1; pointer-events: all; transform: translateY(0); }
 
   .slide-inner {
     flex-shrink: 0;
     width: var(--slide-w); height: var(--slide-h);
     background: var(--bg);
     position: relative; overflow: hidden;
-    border-radius: 5px;
-    box-shadow: 0 80px 240px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
+    border-radius: 4px;
+    box-shadow: 0 60px 200px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.03);
   }
 
-  /* ── NOISE OVERLAY ── */
+  /* noise */
   .slide-inner::before {
     content: '';
     position: absolute; inset: 0; z-index: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    background-size: 267px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-size: 256px;
     pointer-events: none;
   }
 
@@ -66,354 +67,466 @@
 
   /* ── NAV ── */
   #nav {
-    position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 16px; z-index: 100;
-    background: rgba(8,12,20,0.85); backdrop-filter: blur(27px);
-    border: 1px solid var(--border); border-radius: 133px;
-    padding: 13px 29px;
+    position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px; z-index: 100;
+    background: rgba(6,9,15,0.88); backdrop-filter: blur(24px);
+    border: 1px solid var(--border); border-radius: 100px;
+    padding: 10px 24px;
   }
   .nav-btn {
-    width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border);
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border);
     background: transparent; cursor: pointer; color: var(--muted);
     display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s; font-size: 21px;
+    transition: all 0.2s; font-size: 18px;
   }
   .nav-btn:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
-  .nav-dots { display: flex; gap: 8px; }
+  .nav-dots { display: flex; gap: 6px; }
   .dot {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--muted);
+    width: 7px; height: 7px; border-radius: 50%; background: var(--muted);
     transition: all 0.3s; cursor: pointer;
   }
-  .dot.active { background: var(--cyan); width: 29px; border-radius: 4px; }
-  #slide-counter { font-size: 19px; color: var(--muted); font-family: 'Syne', sans-serif; letter-spacing: 1px; min-width: 56px; text-align: center; }
+  .dot.active { background: var(--cyan); width: 26px; border-radius: 4px; }
+  #slide-counter { font-size: 16px; color: var(--muted); font-family: 'Syne', sans-serif; letter-spacing: 1px; min-width: 52px; text-align: center; }
 
-  /* ── COMMON COMPONENTS ── */
+  /* ── COMMON ── */
   .tag {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 16px; letter-spacing: 2px; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 13px; letter-spacing: 2.5px; text-transform: uppercase;
     font-family: 'Syne', sans-serif; font-weight: 600;
     color: var(--cyan); background: var(--cyan-dim);
     border: 1px solid var(--cyan-mid);
-    padding: 7px 16px; border-radius: 133px;
+    padding: 6px 14px; border-radius: 100px;
   }
-  .tag-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); animation: pulse 2s infinite; }
+  .tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: pulse 2s infinite; }
 
   h1.display {
     font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 120px; line-height: 1.0; letter-spacing: -2px; color: var(--text);
+    font-size: 96px; line-height: 1.05; letter-spacing: -2px; color: var(--text);
   }
   h2.section-title {
     font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 70px; line-height: 1.1; letter-spacing: -1px; color: var(--text);
+    font-size: 56px; line-height: 1.15; letter-spacing: -1px; color: var(--text);
   }
   .accent { color: var(--cyan); }
-  .em { font-style: italic; color: var(--muted); font-size: 0.9em; }
+  .accent-gold { color: var(--gold); }
+  .accent-pink { color: var(--pink); }
 
   .card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 21px;
-    padding: 37px;
+    border-radius: 18px;
+    padding: 32px;
   }
   .card-highlight {
     background: var(--cyan-dim);
     border: 1px solid var(--cyan-mid);
-    border-radius: 21px;
-    padding: 37px;
+    border-radius: 18px;
+    padding: 32px;
   }
 
-  /* ── SLIDE 1: TITLE ── */
+  /* ── ANIMATIONS ── */
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .slide.active .anim { animation: fadeUp 0.45s both; }
+  .slide.active .anim:nth-child(2) { animation-delay: 0.06s; }
+  .slide.active .anim:nth-child(3) { animation-delay: 0.12s; }
+  .slide.active .anim:nth-child(4) { animation-delay: 0.18s; }
+  .slide.active .anim:nth-child(5) { animation-delay: 0.24s; }
+
+  /* orbs */
+  .orb {
+    position: absolute; border-radius: 50%; pointer-events: none;
+  }
+  .orb-cyan {
+    background: radial-gradient(circle, rgba(0,229,200,0.07) 0%, transparent 70%);
+  }
+  .orb-gold {
+    background: radial-gradient(circle, rgba(245,200,66,0.05) 0%, transparent 70%);
+  }
+  .orb-pink {
+    background: radial-gradient(circle, rgba(216,45,139,0.06) 0%, transparent 70%);
+  }
+
+  /* utility */
+  .text-muted { color: var(--muted); }
+  .text-sm { font-size: 18px; }
+  .text-xs { font-size: 15px; }
+  .font-syne { font-family: 'Syne', sans-serif; }
+  .fw-700 { font-weight: 700; }
+  .fw-600 { font-weight: 600; }
+
+  .code-chip {
+    display: inline; background: rgba(0,229,200,0.08); color: var(--cyan);
+    font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 16px;
+    padding: 2px 8px; border-radius: 6px; border: 1px solid var(--cyan-mid);
+  }
+  .highlight-pill {
+    display: inline; background: var(--cyan-dim); color: var(--cyan);
+    border-radius: 6px; padding: 1px 10px; font-weight: 600;
+  }
+  .tech-tag {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 10px; padding: 7px 16px;
+    font-size: 17px; color: var(--muted); font-family: 'Syne', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* Slide page number */
+  .page-num {
+    position: absolute; bottom: 28px; right: 40px;
+    font-family: 'Syne', sans-serif; font-size: 14px;
+    color: rgba(100,116,139,0.4); letter-spacing: 2px;
+  }
+
+  /* === SLIDE 1: TITLE === */
   #s1 .content {
-    display: grid; grid-template-columns: 1fr 560px;
-    align-items: center; padding: 93px;
-    gap: 80px;
+    display: grid; grid-template-columns: 1fr 480px;
+    align-items: center; padding: 80px;
+    gap: 72px;
   }
-  #s1 .orb {
-    position: absolute; width: 800px; height: 800px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,229,200,0.08) 0%, transparent 70%);
-    right: -133px; top: -133px; pointer-events: none;
-  }
-  #s1 .orb2 {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(245,200,66,0.06) 0%, transparent 70%);
-    left: 67px; bottom: -67px; pointer-events: none;
-  }
-  #s1 .left { display: flex; flex-direction: column; gap: 32px; }
-  #s1 .subtitle { font-size: 29px; color: var(--muted); font-weight: 300; line-height: 1.6; max-width: 587px; }
-  #s1 .author-chip {
-    display: inline-flex; align-items: center; gap: 13px;
+  #s1 .left { display: flex; flex-direction: column; gap: 28px; }
+  #s1 .subtitle { font-size: 24px; color: var(--muted); font-weight: 300; line-height: 1.65; max-width: 560px; }
+  #s1 .meta-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  #s1 .meta-chip {
+    display: inline-flex; align-items: center; gap: 8px;
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 133px; padding: 11px 21px; width: fit-content;
-    font-size: 21px; color: var(--muted);
+    border-radius: 100px; padding: 8px 18px;
+    font-size: 16px; color: var(--muted);
   }
-  #s1 .author-chip .avatar {
-    width: 37px; height: 37px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--cyan), #0099ff);
+  #s1 .meta-chip .av {
+    width: 28px; height: 28px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 19px; font-weight: 700; color: #000;
+    font-size: 13px; font-weight: 700; color: #000;
     font-family: 'Syne', sans-serif;
   }
   #s1 .visual-card {
-    background: linear-gradient(135deg, rgba(0,229,200,0.06), rgba(0,153,255,0.04));
-    border: 1px solid rgba(0,229,200,0.15); border-radius: 32px;
-    padding: 48px 40px; display: flex; flex-direction: column; gap: 21px;
+    background: linear-gradient(135deg, rgba(0,229,200,0.05), rgba(0,100,200,0.03));
+    border: 1px solid rgba(0,229,200,0.13); border-radius: 28px;
+    padding: 40px 36px; display: flex; flex-direction: column; gap: 16px;
     position: relative; overflow: hidden;
   }
   #s1 .visual-card::after {
     content: ''; position: absolute; top: 0; right: 0; left: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,229,200,0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,229,200,0.35), transparent);
   }
   .bill-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 13px 19px; background: rgba(255,255,255,0.03); border-radius: 13px;
-    font-size: 21px; color: var(--text);
+    padding: 11px 16px; background: rgba(255,255,255,0.025); border-radius: 11px;
+    font-size: 18px; color: var(--text);
   }
-  .bill-row .person { display: flex; gap: 8px; }
-  .pip { width: 11px; height: 11px; border-radius: 50%; }
+  .bill-row .pips { display: flex; gap: 5px; }
+  .pip { width: 10px; height: 10px; border-radius: 50%; }
   .bill-total {
     display: flex; justify-content: space-between;
-    padding: 16px 19px 0; border-top: 1px solid var(--border);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 25px;
+    padding: 14px 16px 0; border-top: 1px solid var(--border);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px;
   }
   .bill-total span:last-child { color: var(--cyan); }
 
-  /* ── SLIDE 2: PAIN ── */
-  #s2 .content { padding: 80px 93px; display: flex; flex-direction: column; gap: 53px; }
-  #s2 .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 27px; flex: 1; }
+  /* === SLIDE 2: PAIN === */
+  .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .pain-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-    padding: 40px 35px; display: flex; flex-direction: column; gap: 21px;
-    transition: border-color 0.3s, transform 0.3s;
-    cursor: default;
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 36px 30px; display: flex; flex-direction: column; gap: 18px;
+    transition: border-color 0.3s, transform 0.3s; cursor: default;
   }
-  .pain-card:hover { border-color: rgba(0,229,200,0.3); transform: translateY(-4px); }
+  .pain-card:hover { border-color: rgba(0,229,200,0.25); transform: translateY(-3px); }
   .pain-icon {
-    width: 69px; height: 69px; border-radius: 19px;
-    background: var(--cyan-dim); border: 1px solid var(--cyan-mid);
-    display: flex; align-items: center; justify-content: center; font-size: 36px;
+    width: 60px; height: 60px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center; font-size: 30px;
   }
-  .pain-card h3 { font-family: 'Syne', sans-serif; font-size: 29px; font-weight: 700; color: var(--text); }
-  .pain-card p { font-size: 22px; color: var(--muted); line-height: 1.65; }
+  .pain-icon.cyan-bg { background: var(--cyan-dim); border: 1px solid var(--cyan-mid); }
+  .pain-icon.gold-bg { background: var(--gold-dim); border: 1px solid var(--gold-mid); }
+  .pain-icon.red-bg { background: var(--red-dim); border: 1px solid rgba(255,92,92,0.25); }
+  .pain-card h3 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: var(--text); }
+  .pain-card p { font-size: 18px; color: var(--muted); line-height: 1.65; }
+  .pain-stat {
+    font-family: 'Syne', sans-serif; font-size: 14px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--cyan); margin-top: auto;
+    padding-top: 12px; border-top: 1px solid var(--border);
+  }
 
-  /* ── SLIDE 3: EVIDENCE ── */
-  #s3 .content { padding: 80px 93px; display: flex; flex-direction: column; gap: 48px; }
-  .insight-list { display: flex; flex-direction: column; gap: 24px; }
+  /* === SLIDE 3: EVIDENCE === */
+  .insight-list { display: flex; flex-direction: column; gap: 20px; }
   .insight-item {
-    display: flex; gap: 27px; align-items: flex-start;
+    display: flex; gap: 24px; align-items: flex-start;
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 19px; padding: 29px 35px;
+    border-radius: 16px; padding: 26px 30px;
     transition: border-color 0.3s;
   }
-  .insight-item:hover { border-color: rgba(0,229,200,0.25); }
+  .insight-item:hover { border-color: rgba(0,229,200,0.2); }
+  .insight-item.highlight { border-color: var(--cyan-mid); background: var(--cyan-dim); }
   .insight-num {
-    font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 700;
-    color: var(--cyan); letter-spacing: 1px; padding-top: 2px;
-    min-width: 37px;
+    font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+    color: var(--cyan); letter-spacing: 1px; padding-top: 2px; min-width: 32px;
   }
-  .insight-body strong { color: var(--text); font-weight: 500; font-size: 24px; }
-  .insight-body p { color: var(--muted); font-size: 22px; line-height: 1.6; margin-top: 5px; }
+  .insight-body strong { color: var(--text); font-weight: 600; font-size: 20px; }
+  .insight-body p { color: var(--muted); font-size: 18px; line-height: 1.6; margin-top: 4px; }
 
-  /* ── SLIDE 4: BUILD SLICE ── */
-  #s4 .content { padding: 80px 93px; display: flex; flex-direction: column; justify-content: center; gap: 48px; }
+  /* === SLIDE 4: SOLUTION === */
   .quote-wrapper {
-    background: linear-gradient(135deg, rgba(0,229,200,0.05), rgba(0,100,200,0.04));
-    border: 1px solid rgba(0,229,200,0.18);
-    border-radius: 27px; padding: 53px 59px;
+    background: linear-gradient(135deg, rgba(0,229,200,0.04), rgba(0,80,160,0.03));
+    border: 1px solid rgba(0,229,200,0.15);
+    border-radius: 24px; padding: 44px 52px;
     position: relative;
   }
   .quote-wrapper::before {
-    content: '"'; position: absolute; top: -27px; left: 43px;
-    font-family: 'Syne', sans-serif; font-size: 200px; color: var(--cyan); opacity: 0.15;
+    content: '"'; position: absolute; top: -24px; left: 36px;
+    font-family: 'Syne', sans-serif; font-size: 180px; color: var(--cyan); opacity: 0.12;
     line-height: 1;
   }
   .quote-wrapper p {
-    font-size: 29px; line-height: 1.8; color: var(--muted);
+    font-size: 24px; line-height: 1.8; color: var(--muted);
     position: relative; z-index: 1;
   }
   .quote-wrapper strong { color: var(--text); font-weight: 500; }
-  .highlight-pill {
-    display: inline; background: var(--cyan-dim); color: var(--cyan);
-    border-radius: 8px; padding: 1px 11px; font-weight: 600;
-  }
-  .tech-tags { display: flex; gap: 13px; flex-wrap: wrap; }
-  .tech-tag {
-    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-    border-radius: 11px; padding: 8px 19px;
-    font-size: 20px; color: var(--muted); font-family: 'Syne', sans-serif;
-    letter-spacing: 0.5px;
-  }
 
-  /* ── SLIDE 5: FLOW ── */
-  #s5 .content { padding: 80px 93px; display: flex; flex-direction: column; gap: 53px; }
+  /* === SLIDE 5: FLOW === */
   .flow-track {
     display: flex; align-items: center; gap: 0;
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 27px; padding: 43px 48px;
-    flex: 1;
+    border-radius: 24px; padding: 40px 44px;
   }
   .flow-node {
     flex: 1; display: flex; flex-direction: column; align-items: center;
-    gap: 16px; text-align: center;
+    gap: 12px; text-align: center;
   }
   .flow-bubble {
-    width: 80px; height: 80px; border-radius: 21px;
+    width: 72px; height: 72px; border-radius: 18px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 36px;
+    font-size: 32px;
   }
   .flow-bubble.default { background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
-  .flow-bubble.ai { background: rgba(0,229,200,0.15); border: 1px solid rgba(0,229,200,0.35); }
-  .flow-bubble.calc { background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.3); }
-  .flow-node span { font-size: 20px; color: var(--muted); max-width: 107px; line-height: 1.4; }
+  .flow-bubble.ai { background: rgba(0,229,200,0.12); border: 1px solid rgba(0,229,200,0.3); }
+  .flow-bubble.calc { background: rgba(245,200,66,0.10); border: 1px solid rgba(245,200,66,0.25); }
+  .flow-node span { font-size: 17px; color: var(--muted); max-width: 100px; line-height: 1.35; }
   .flow-node .step-label {
-    font-family: 'Syne', sans-serif; font-size: 19px; color: var(--muted);
-    letter-spacing: 1px; text-transform: uppercase;
+    font-family: 'Syne', sans-serif; font-size: 13px; color: rgba(100,116,139,0.7);
+    letter-spacing: 2px; text-transform: uppercase;
   }
-  .flow-arrow { color: rgba(255,255,255,0.15); font-size: 30px; margin: 0 5px; padding-bottom: 35px; }
+  .flow-arrow { color: rgba(255,255,255,0.12); font-size: 24px; margin: 0 2px; padding-bottom: 30px; }
   .ai-badge {
     background: var(--cyan-dim); border: 1px solid var(--cyan-mid);
-    border-radius: 11px; padding: 7px 16px;
-    font-size: 19px; font-family: 'Syne', sans-serif; color: var(--cyan);
+    border-radius: 8px; padding: 4px 12px;
+    font-size: 14px; font-family: 'Syne', sans-serif; color: var(--cyan);
     letter-spacing: 0.5px;
   }
 
-  /* ── SLIDE 6: TEST DATA ── */
-  #s6 .content { padding: 80px 93px; display: flex; flex-direction: column; gap: 48px; }
-  .test-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 21px; flex: 1; }
+  /* === SLIDE 6: ARCHITECTURE === */
+  .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .arch-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 30px 28px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .arch-card h3 {
+    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .arch-card .tech-list { display: flex; flex-direction: column; gap: 10px; }
+  .arch-card .tech-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 14px; background: rgba(255,255,255,0.02); border-radius: 10px;
+    font-size: 17px;
+  }
+  .arch-card .tech-row .label { color: var(--muted); }
+  .arch-card .tech-row .val { color: var(--text); font-weight: 500; font-family: 'Syne', sans-serif; font-size: 16px; }
+  .arch-flow {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(0,229,200,0.04), rgba(0,60,120,0.03));
+    border: 1px solid rgba(0,229,200,0.12);
+    border-radius: 20px; padding: 28px 36px;
+    display: flex; align-items: center; justify-content: center; gap: 28px;
+    font-size: 18px; color: var(--muted);
+  }
+  .arch-flow .box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 22px; text-align: center;
+    min-width: 140px;
+  }
+  .arch-flow .box .name { color: var(--text); font-weight: 600; font-size: 17px; }
+  .arch-flow .box .sub { font-size: 14px; color: var(--muted); margin-top: 3px; }
+  .arch-flow .box.ai-box { border-color: var(--cyan-mid); background: var(--cyan-dim); }
+  .arch-flow .box.ai-box .name { color: var(--cyan); }
+  .arch-flow .arrow { font-size: 20px; color: rgba(255,255,255,0.15); }
+
+  /* === SLIDE 7: AI DEEP DIVE === */
+  .ai-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; }
+  .prompt-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px 26px;
+  }
+  .prompt-card h3 {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .rule-row {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    font-size: 14px; color: #a1aabf; line-height: 1.5;
+  }
+  .highlight-rule {
+    color: var(--cyan);
+    font-weight: 500;
+  }
+  .rule-num {
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    color: var(--cyan); background: var(--cyan-dim);
+    border-radius: 4px; padding: 2px 6px; min-width: 24px; text-align: center;
+    margin-top: 2px;
+  }
+  .provider-table {
+    width: 100%; border-collapse: collapse; font-size: 16px;
+  }
+  .provider-table th {
+    text-align: left; padding: 10px 12px; font-family: 'Syne', sans-serif;
+    font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); border-bottom: 1px solid var(--border);
+  }
+  .provider-table td {
+    padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--text);
+  }
+  .provider-table td:first-child { font-weight: 600; }
+  .provider-table .status-ok { color: var(--cyan); }
+
+  /* === SLIDE 8: TEST DATA === */
+  .test-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
   .test-card {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 21px; overflow: hidden;
+    border-radius: 18px; overflow: hidden;
     display: flex; flex-direction: column;
     transition: border-color 0.3s, transform 0.3s;
   }
-  .test-card:hover { border-color: rgba(0,229,200,0.3); transform: translateY(-4px); }
+  .test-card:hover { border-color: rgba(0,229,200,0.25); transform: translateY(-3px); }
   .test-card-img {
-    height: 200px; overflow: hidden;
-    background: linear-gradient(135deg, rgba(0,229,200,0.06), rgba(0,80,160,0.1));
-    display: flex; align-items: center; justify-content: center; font-size: 70px;
+    height: 160px; overflow: hidden;
+    background: linear-gradient(135deg, rgba(0,229,200,0.05), rgba(0,60,120,0.08));
+    display: flex; align-items: center; justify-content: center; font-size: 56px;
   }
-  .test-card-body { padding: 21px; }
+  .test-card-body { padding: 18px; }
   .difficulty {
-    display: inline-block; font-size: 16px; letter-spacing: 1.5px;
+    display: inline-block; font-size: 12px; letter-spacing: 2px;
     text-transform: uppercase; font-family: 'Syne', sans-serif; font-weight: 700;
-    padding: 4px 13px; border-radius: 8px; margin-bottom: 8px;
+    padding: 3px 10px; border-radius: 6px; margin-bottom: 6px;
   }
-  .diff-easy { background: rgba(0,229,128,0.12); color: #00e580; }
-  .diff-medium { background: rgba(245,200,66,0.12); color: var(--gold); }
-  .diff-hard { background: rgba(255,92,92,0.12); color: var(--red); }
-  .diff-edge { background: rgba(200,100,255,0.12); color: #c864ff; }
-  .test-card-body p { font-size: 20px; color: var(--muted); line-height: 1.4; margin-top: 5px; }
+  .diff-easy { background: rgba(0,229,128,0.10); color: #00e580; }
+  .diff-medium { background: rgba(245,200,66,0.10); color: var(--gold); }
+  .diff-hard { background: rgba(255,92,92,0.10); color: var(--red); }
+  .diff-edge { background: rgba(200,100,255,0.10); color: #c864ff; }
+  .test-card-body p { font-size: 16px; color: var(--muted); line-height: 1.4; margin-top: 4px; }
+  .test-card-body .count { font-family: 'Syne', sans-serif; font-size: 13px; color: rgba(100,116,139,0.6); margin-top: 6px; }
 
-  /* ── SLIDE 7: RESULTS ── */
-  #s7 .content { padding: 80px 93px; display: flex; flex-direction: column; gap: 48px; }
-  .results-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; flex: 1; }
+  /* === SLIDE 9: RESULTS === */
+  .results-layout { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; }
   .chart-area {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 24px; padding: 37px; position: relative;
+    border-radius: 22px; padding: 32px;
   }
-  .chart-label { font-size: 19px; color: var(--muted); font-family: 'Syne', sans-serif; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 27px; }
-  .bar-chart { display: flex; flex-direction: column; gap: 24px; margin-top: 11px; }
-  .bar-row { display: flex; flex-direction: column; gap: 8px; }
-  .bar-meta { display: flex; justify-content: space-between; font-size: 20px; }
+  .chart-label { font-size: 14px; color: var(--muted); font-family: 'Syne', sans-serif; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 24px; }
+  .bar-chart { display: flex; flex-direction: column; gap: 22px; }
+  .bar-row { display: flex; flex-direction: column; gap: 7px; }
+  .bar-meta { display: flex; justify-content: space-between; font-size: 17px; }
   .bar-meta .bar-name { color: var(--muted); }
   .bar-meta .bar-val { color: var(--text); font-family: 'Syne', sans-serif; font-weight: 700; }
-  .bar-track { height: 11px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; }
+  .bar-track { height: 10px; background: rgba(255,255,255,0.04); border-radius: 5px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 5px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
   .bar-fill.cyan { background: linear-gradient(90deg, var(--cyan), #0099ff); }
   .bar-fill.gold { background: linear-gradient(90deg, var(--gold), #ffaa00); }
+  .bar-fill.pink { background: linear-gradient(90deg, var(--pink), #ff60b6); }
 
-  .metrics-col { display: flex; flex-direction: column; gap: 21px; }
+  .metrics-col { display: flex; flex-direction: column; gap: 18px; }
   .metric-card {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 21px; padding: 29px 35px; flex: 1;
-    display: flex; align-items: center; gap: 27px;
+    border-radius: 18px; padding: 24px 28px; flex: 1;
+    display: flex; align-items: center; gap: 22px;
   }
-  .metric-card:first-child { border-color: rgba(0,229,200,0.25); background: var(--cyan-dim); }
-  .metric-big { font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800; color: var(--text); line-height: 1; }
-  .metric-card:first-child .metric-big { color: var(--cyan); }
-  .metric-label { font-size: 21px; color: var(--muted); line-height: 1.4; max-width: 160px; }
-  .footnote { font-size: 19px; color: rgba(100,116,139,0.7); text-align: center; }
+  .metric-card.primary { border-color: rgba(0,229,200,0.2); background: var(--cyan-dim); }
+  .metric-big { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: var(--text); line-height: 1; }
+  .metric-card.primary .metric-big { color: var(--cyan); }
+  .metric-label { font-size: 17px; color: var(--muted); line-height: 1.35; }
+  .footnote { font-size: 16px; color: rgba(100,116,139,0.6); text-align: center; }
 
-  /* ── SLIDE 8: FAILURE ── */
-  #s8 .content { padding: 80px 93px; display: flex; flex-direction: column; gap: 48px; }
-  .failure-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 27px; flex: 1; }
+  /* === SLIDE 10: AUGMENT vs AUTOMATE === */
+  .canvas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .canvas-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 30px 28px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .canvas-card h3 {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .canvas-card p { font-size: 17px; color: var(--muted); line-height: 1.6; }
+  .canvas-card.augment { border-color: rgba(0,229,200,0.2); }
+  .canvas-card.augment h3 { color: var(--cyan); }
+  .decision-bar {
+    grid-column: 1 / -1;
+    background: linear-gradient(90deg, var(--cyan-dim), rgba(245,200,66,0.08));
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px 32px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .decision-bar .marker {
+    background: var(--cyan); color: #000; font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 14px; letter-spacing: 1px;
+    padding: 6px 16px; border-radius: 8px; white-space: nowrap;
+  }
+
+  /* === SLIDE 11: FAILURE === */
+  .failure-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .failure-card {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 24px; padding: 37px 40px;
-    display: flex; flex-direction: column; gap: 21px;
+    border-radius: 20px; padding: 28px 26px;
+    display: flex; flex-direction: column; gap: 14px;
   }
-  .failure-header { display: flex; align-items: center; gap: 19px; }
+  .failure-header { display: flex; align-items: center; gap: 14px; }
   .failure-icon {
-    width: 59px; height: 59px; border-radius: 16px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 30px;
-    background: rgba(255,92,92,0.1); border: 1px solid rgba(255,92,92,0.25);
+    width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+    background: rgba(255,92,92,0.08); border: 1px solid rgba(255,92,92,0.2);
   }
-  .failure-header h3 { font-family: 'Syne', sans-serif; font-size: 26px; color: var(--text); font-weight: 700; }
-  .failure-card p { font-size: 21px; color: var(--muted); line-height: 1.65; }
+  .failure-header h3 { font-family: 'Syne', sans-serif; font-size: 20px; color: var(--text); font-weight: 700; }
+  .failure-card p { font-size: 17px; color: var(--muted); line-height: 1.55; }
   .solution-label {
-    font-size: 16px; letter-spacing: 1.5px; text-transform: uppercase;
-    font-family: 'Syne', sans-serif; color: var(--cyan); margin-bottom: 5px;
-  }
-  .code-chip {
-    display: inline; background: rgba(0,229,200,0.08); color: var(--cyan);
-    font-family: 'Courier New', monospace; font-size: 19px;
-    padding: 1px 9px; border-radius: 7px; border: 1px solid var(--cyan-mid);
+    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    font-family: 'Syne', sans-serif; color: var(--cyan); margin-bottom: 2px;
   }
 
-  /* ── SLIDE 9: Q&A ── */
-  #s9 .content {
+  /* === SLIDE 11: Q&A === */
+  #s11 .content {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    gap: 43px; text-align: center; padding: 93px;
+    gap: 36px; text-align: center; padding: 80px;
   }
-  #s9 .qa-big {
-    font-family: 'Syne', sans-serif; font-size: 200px; font-weight: 800;
-    color: var(--text); line-height: 1; letter-spacing: -8px;
+  #s11 .qa-big {
+    font-family: 'Syne', sans-serif; font-size: 180px; font-weight: 800;
+    color: var(--text); line-height: 1; letter-spacing: -6px;
     position: relative; display: inline-block;
   }
-  #s9 .qa-big::after {
-    content: 'Q&A';
+  #s11 .qa-big::after {
+    content: 'THANK YOU';
     position: absolute; inset: 0;
     background: linear-gradient(135deg, var(--cyan), #0077ff);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    opacity: 0.15;
+    opacity: 0.12;
     transform: translate(4px, 4px);
     z-index: -1;
   }
-  #s9 .qa-sub { font-size: 29px; color: var(--muted); font-weight: 300; }
-  #s9 .orb3 {
-    position: absolute; width: 666px; height: 666px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,229,200,0.07) 0%, transparent 70%);
-    top: 50%; left: 50%; transform: translate(-50%, -50%);
-    pointer-events: none;
+  #s11 .qa-sub { font-size: 24px; color: var(--muted); font-weight: 300; }
+  .stat-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .stat-chip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 24px; text-align: center;
+    min-width: 140px;
   }
+  .stat-chip .num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--cyan); }
+  .stat-chip .lbl { font-size: 14px; color: var(--muted); margin-top: 3px; }
 
-  /* ── ANIMATIONS ── */
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(21px); } to { opacity: 1; transform: translateY(0); } }
-  .slide.active .card,
-  .slide.active .pain-card,
-  .slide.active .insight-item,
-  .slide.active .test-card,
-  .slide.active .metric-card,
-  .slide.active .failure-card,
-  .slide.active .flow-track {
-    animation: fadeUp 0.5s both;
-  }
-  .slide.active .pain-card:nth-child(2) { animation-delay: 0.08s; }
-  .slide.active .pain-card:nth-child(3) { animation-delay: 0.16s; }
-  .slide.active .insight-item:nth-child(2) { animation-delay: 0.08s; }
-  .slide.active .insight-item:nth-child(3) { animation-delay: 0.16s; }
-  .slide.active .test-card:nth-child(2) { animation-delay: 0.07s; }
-  .slide.active .test-card:nth-child(3) { animation-delay: 0.14s; }
-  .slide.active .test-card:nth-child(4) { animation-delay: 0.21s; }
-  .slide.active .metric-card:nth-child(2) { animation-delay: 0.1s; }
-  .slide.active .metric-card:nth-child(3) { animation-delay: 0.2s; }
-  .slide.active .failure-card:nth-child(2) { animation-delay: 0.1s; }
-
-  /* keyboard hint */
   #hint {
-    position: fixed; top: 29px; right: 37px; z-index: 100;
-    font-size: 19px; color: rgba(100,116,139,0.5);
+    position: fixed; top: 24px; right: 32px; z-index: 100;
+    font-size: 14px; color: rgba(100,116,139,0.4);
     font-family: 'Syne', sans-serif; letter-spacing: 0.5px;
   }
 </style>
@@ -422,132 +535,161 @@
 
 <div id="deck">
 
-  <!-- SLIDE 1: TITLE -->
+  <!-- ========== SLIDE 1: TITLE ========== -->
   <div class="slide active" id="s1">
     <div class="slide-inner">
-      <div class="orb"></div><div class="orb2"></div>
+      <div class="orb orb-cyan" style="width:700px;height:700px;right:-120px;top:-120px;"></div>
+      <div class="orb orb-gold" style="width:350px;height:350px;left:60px;bottom:-60px;"></div>
       <div class="content">
         <div class="left">
-          <div class="tag"><span class="tag-dot"></span>AI Product Labs</div>
-          <h1 class="display">Smart<br><span class="accent">Bill</span><br>Splitting</h1>
-          <p class="subtitle">Bóc tách hóa đơn tự động & thông minh bằng AI Vision — không còn tính tay, không còn nhầm lẫn.</p>
-          <div class="author-chip">
-            <div class="avatar">DH</div>
+          <div class="tag anim"><span class="tag-dot"></span>AI Product Labs · Day 06</div>
+          <h1 class="display anim">Smart<br><span class="accent">Bill</span><br>Splitting</h1>
+          <p class="subtitle anim">Bóc tách hóa đơn tự động bằng AI Vision — không còn tính tay, không còn nhầm lẫn, không còn ngại đòi tiền.</p>
+          <div class="meta-row anim">
+            <div class="meta-chip">
+              <div class="av" style="background:linear-gradient(135deg,var(--cyan),#0099ff);">DH</div>
+              Dương Hiếu
+            </div>
+            <div class="meta-chip">📌 Track: Personal Finance</div>
+            <div class="meta-chip">🏦 App: MoMo</div>
           </div>
         </div>
-        <div class="visual-card">
-          <div class="tag" style="font-size: 11px; padding:3px 10px; width:fit-content;">📄 Hóa đơn mẫu</div>
+        <div class="visual-card anim">
+          <div class="tag" style="font-size:10px;padding:3px 10px;width:fit-content;">📄 Hóa đơn mẫu — Haidilao</div>
           <div class="bill-row">
             <span>Bò kho bánh mì × 2</span>
-            <div class="person"><span class="pip" style="background:#00e5c8; margin-top:5px;"></span><span class="pip" style="background:#f5c842; margin-top:5px;"></span></div>
-            <span style="color:var(--text)">180,000₫</span>
+            <div class="pips"><span class="pip" style="background:var(--cyan)"></span><span class="pip" style="background:var(--gold)"></span></div>
+            <span>180,000₫</span>
           </div>
           <div class="bill-row">
             <span>Cơm sườn × 1</span>
-            <div class="person"><span class="pip" style="background:#c864ff; margin-top:5px;"></span></div>
-            <span style="color:var(--text)">75,000₫</span>
+            <div class="pips"><span class="pip" style="background:#c864ff"></span></div>
+            <span>75,000₫</span>
           </div>
           <div class="bill-row">
-            <span>Khăn lạnh + VAT</span>
-            <div style="font-size: 12px; color:var(--muted); background:rgba(0,229,200,0.08); padding:2px 8px; border-radius:6px;">chia đều</div>
-            <span style="color:var(--muted)">25,000₫</span>
+            <span>Trà đá × 4</span>
+            <div class="pips"><span class="pip" style="background:var(--cyan)"></span><span class="pip" style="background:var(--gold)"></span><span class="pip" style="background:#c864ff"></span><span class="pip" style="background:var(--pink)"></span></div>
+            <span>20,000₫</span>
+          </div>
+          <div class="bill-row">
+            <span>Khăn lạnh + VAT 8%</span>
+            <div style="font-size:11px;color:var(--muted);background:var(--cyan-dim);padding:2px 8px;border-radius:4px;">chia đều</div>
+            <span style="color:var(--muted)">41,600₫</span>
           </div>
           <div class="bill-total">
-            <span style="color:var(--muted); font-weight:400; font-size: 16px">Tổng</span>
-            <span>280,000₫</span>
+            <span style="color:var(--muted);font-weight:400;font-size:15px">Tổng cộng</span>
+            <span>316,600₫</span>
           </div>
         </div>
       </div>
+      <div class="page-num">01 / 11</div>
     </div>
   </div>
 
-  <!-- SLIDE 2: PAIN STATEMENT -->
+  <!-- ========== SLIDE 2: PAIN ========== -->
   <div class="slide" id="s2">
     <div class="slide-inner">
-      <div class="content">
-        <div class="tag"><span class="tag-dot"></span>Pain Statement</div>
-        <h2 class="section-title">Vấn đề <span class="accent">hiện tại</span></h2>
-        <div class="pain-grid">
-          <div class="pain-card">
-            <div class="pain-icon">📷</div>
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:44px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>Pain Statement</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Vấn đề <span class="accent">hiện tại</span></h2>
+        </div>
+        <div class="pain-grid" style="flex:1;">
+          <div class="pain-card anim">
+            <div class="pain-icon cyan-bg">📷</div>
             <h3>Chụp & Nhập tay</h3>
-            <p>Thao tác thủ công, mỏi mắt dò từng món, rất dễ nhập sai số liệu trên hóa đơn dài.</p>
+            <p>Thao tác thủ công, mỏi mắt dò từng món trên hóa đơn dài, rất dễ nhập sai số liệu — đặc biệt khi bill viết tay hoặc mờ.</p>
+            <div class="pain-stat">→ Tốn 5–10 phút / lần chia tiền</div>
           </div>
-          <div class="pain-card">
-            <div class="pain-icon">🧮</div>
+          <div class="pain-card anim">
+            <div class="pain-icon gold-bg">🧮</div>
             <h3>Tính toán rườm rà</h3>
-            <p>Ai ăn món gì? VAT tính sao? Phí phục vụ cộng vào đâu? Khăn lạnh chia thế nào?</p>
+            <p>Ai ăn món gì? VAT 8% tính sao? Phí phục vụ 5% cộng vào đâu? Khăn lạnh chia thế nào? — Mỗi lần ăn nhóm là một bài toán.</p>
+            <div class="pain-stat">→ MoMo Moni chỉ chia đều hoặc nhập tay</div>
           </div>
-          <div class="pain-card">
-            <div class="pain-icon">😬</div>
+          <div class="pain-card anim">
+            <div class="pain-icon red-bg">😬</div>
             <h3>Ngại đòi tiền</h3>
-            <p>Người trả thường ngại nhắc, dẫn đến quên trả hoặc chia không công bằng trong nhóm.</p>
+            <p>Người trả thường ngại nhắc bạn bè, dẫn đến quên trả hoặc chia không công bằng — ảnh hưởng tình cảm nhóm.</p>
+            <div class="pain-stat">→ 40% quên trả nếu không nhắc ngay</div>
           </div>
         </div>
       </div>
+      <div class="page-num">02 / 11</div>
     </div>
   </div>
 
-  <!-- SLIDE 3: EVIDENCE -->
+  <!-- ========== SLIDE 3: EVIDENCE ========== -->
   <div class="slide" id="s3">
     <div class="slide-inner">
-      <div class="content">
-        <div class="tag"><span class="tag-dot"></span>Evidence & Insights</div>
-        <h2 class="section-title">Dữ liệu <span class="accent">thực tế</span></h2>
-        <div class="insight-list">
-          <div class="insight-item">
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:40px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>Evidence & Insights</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Bằng chứng <span class="accent">thực tế</span></h2>
+        </div>
+        <div class="insight-list" style="flex:1;">
+          <div class="insight-item anim">
             <div class="insight-num">01</div>
             <div class="insight-body">
               <strong>Ứng dụng hiện tại còn thiếu sót</strong>
-              <p>MoMo Moni, ZaloPay chỉ chia đều hoặc nhập tay toàn bộ số tiền — cực kỳ tốn thời gian và hay nhầm.</p>
+              <p>MoMo Moni, ZaloPay chỉ hỗ trợ chia đều hoặc nhập tay số tiền mỗi người — cực kỳ tốn thời gian và hay nhầm khi bill dài.</p>
             </div>
           </div>
-          <div class="insight-item">
+          <div class="insight-item anim">
             <div class="insight-num">02</div>
             <div class="insight-body">
               <strong>Hóa đơn Việt Nam rất phức tạp</strong>
-              <p>Có VAT riêng, phí phục vụ, khăn lạnh chung, và nhiều bill viết tay cực kỳ khó đọc — AI phải đủ mạnh để xử lý.</p>
+              <p>VAT riêng, phí phục vụ 5–10%, khăn lạnh chia chung, bill viết tay — AI phải đủ mạnh để xử lý edge cases.</p>
             </div>
           </div>
-          <div class="insight-item">
-            <div class="insight-num">03</div>
+          <div class="insight-item highlight anim">
+            <div class="insight-num">✨</div>
             <div class="insight-body">
-              <strong>✨ Core insight</strong>
-              <p>Người dùng không muốn làm toán. Họ chỉ muốn chụp ảnh bill, tick tên bạn vào món ăn, và app tự tính phần còn lại.</p>
+              <strong>Core Insight</strong>
+              <p>Người dùng không muốn làm toán. Họ chỉ muốn <span class="highlight-pill">chụp ảnh bill</span>, tick tên bạn vào món ăn, và app tự tính phần còn lại.</p>
             </div>
           </div>
         </div>
       </div>
+      <div class="page-num">03 / 11</div>
     </div>
   </div>
 
-  <!-- SLIDE 4: BUILD SLICE -->
+  <!-- ========== SLIDE 4: SOLUTION ========== -->
   <div class="slide" id="s4">
     <div class="slide-inner">
-      <div class="content">
-        <div class="tag"><span class="tag-dot"></span>Build Slice</div>
-        <h2 class="section-title">Đề xuất <span class="accent">giải pháp</span></h2>
-        <div class="quote-wrapper">
-          <p>Cho <strong>nhóm bạn đi ăn chung</strong> muốn <strong>chia tiền chính xác theo món</strong>, chúng tôi đề xuất tính năng <span class="highlight-pill">Smart Bill Splitting</span>. Sử dụng <strong>AI Vision (GPT‑4o)</strong> để đọc và bóc tách mọi loại hóa đơn thành danh sách món ăn, cho phép người dùng tick chọn món dễ dàng — app sẽ tự động chia đều các khoản phí chung như thuế, phí phục vụ và khăn lạnh.</p>
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;justify-content:center;gap:40px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>Build Slice</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Đề xuất <span class="accent">giải pháp</span></h2>
         </div>
-        <div class="tech-tags">
+        <div class="quote-wrapper anim">
+          <p>Cho <strong>nhóm bạn đi ăn chung</strong> muốn <strong>chia tiền chính xác theo món</strong>, chúng tôi đề xuất tính năng <span class="highlight-pill">Smart Bill Splitting</span> tích hợp vào MoMo. Sử dụng <strong>AI Vision (GPT‑4o)</strong> để đọc và bóc tách mọi loại hóa đơn Việt Nam thành danh sách món ăn có cấu trúc, cho phép từng người tick chọn món mình ăn — app sẽ tự động chia đều VAT, phí phục vụ và khăn lạnh.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;" class="anim">
           <div class="tech-tag">GPT-4o Vision</div>
-          <div class="tech-tag">JSON Extraction</div>
-          <div class="tech-tag">Edge-case Aware Prompt</div>
+          <div class="tech-tag">Gemini 2.5 Flash</div>
+          <div class="tech-tag">DeepSeek V4</div>
+          <div class="tech-tag">Multi-Provider Fallback</div>
           <div class="tech-tag">Confidence Scoring</div>
-          <div class="tech-tag">Augmentation Pattern</div>
+          <div class="tech-tag">Edge-case Aware Prompt</div>
+          <div class="tech-tag">Pydantic Validation</div>
+          <div class="tech-tag">Supabase Realtime</div>
         </div>
       </div>
+      <div class="page-num">04 / 11</div>
     </div>
   </div>
 
-  <!-- SLIDE 5: TO-BE FLOW -->
+  <!-- ========== SLIDE 5: FLOW ========== -->
   <div class="slide" id="s5">
     <div class="slide-inner">
-      <div class="content">
-        <div class="tag"><span class="tag-dot"></span>TO-BE Flow</div>
-        <h2 class="section-title">Quy trình <span class="accent">mới</span> với AI</h2>
-        <div class="flow-track">
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:44px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>TO-BE Flow</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Quy trình <span class="accent">mới</span> với AI</h2>
+        </div>
+        <div class="flow-track anim" style="flex:1;">
           <div class="flow-node">
             <div class="flow-bubble default">📸</div>
             <span class="step-label">Bước 1</span>
@@ -556,201 +698,287 @@
           <div class="flow-arrow">→</div>
           <div class="flow-node">
             <div class="flow-bubble ai">🤖</div>
-            <span class="ai-badge">GPT-4o Vision</span>
+            <span class="ai-badge">AI Vision</span>
             <span>Bóc tách<br>JSON tự động</span>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-node">
             <div class="flow-bubble default">✏️</div>
             <span class="step-label">Bước 3</span>
-            <span>Review &<br>chỉnh sửa</span>
+            <span>Host review<br>& chỉnh sửa</span>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-node">
-            <div class="flow-bubble default">👥</div>
+            <div class="flow-bubble default">🔗</div>
             <span class="step-label">Bước 4</span>
-            <span>Gắn tag<br>bạn bè</span>
+            <span>Chia sẻ link<br>cho bạn bè</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <div class="flow-bubble default">👆</div>
+            <span class="step-label">Bước 5</span>
+            <span>Mỗi người<br>tick chọn món</span>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-node">
             <div class="flow-bubble calc">⚡</div>
-            <span class="step-label">Bước 5</span>
-            <span>Tự tính thuế<br>+ phí chung</span>
+            <span class="step-label">Bước 6</span>
+            <span>Auto tính<br>thuế + phí</span>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-node">
             <div class="flow-bubble default">💸</div>
-            <span class="step-label">Bước 6</span>
-            <span>Chốt &<br>đòi tiền</span>
+            <span class="step-label">Bước 7</span>
+            <span>Chốt &<br>thanh toán</span>
           </div>
         </div>
+        <p class="anim" style="font-size:18px;color:var(--muted);text-align:center;">AI xử lý bước 2 — Con người kiểm soát bước 3, 5, 7 → <span class="accent">Augmentation pattern</span></p>
       </div>
+      <div class="page-num">05 / 11</div>
     </div>
   </div>
 
-  <!-- SLIDE 6: TEST DATA -->
+  <!-- ========== SLIDE 6: ARCHITECTURE ========== -->
   <div class="slide" id="s6">
     <div class="slide-inner">
-      <div class="content">
-        <div class="tag"><span class="tag-dot"></span>Test Data</div>
-        <h2 class="section-title">9 hóa đơn <span class="accent">thực tế</span></h2>
-        <div class="test-grid">
-          <div class="test-card">
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:36px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>System Architecture</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Kiến trúc <span class="accent">hệ thống</span></h2>
+        </div>
+        <div class="arch-flow anim">
+          <div class="box"><div class="name">📱 Frontend</div><div class="sub">React 19 + Vite 8</div></div>
+          <div class="arrow">→</div>
+          <div class="box ai-box"><div class="name">🐍 FastAPI</div><div class="sub">Multi-Provider AI</div></div>
+          <div class="arrow">→</div>
+          <div class="box"><div class="name">🧠 GPT-4o Vision</div><div class="sub">Primary Provider</div></div>
+          <div style="width:1px;height:40px;background:var(--border);margin:0 6px;"></div>
+          <div class="box"><div class="name">💎 Gemini 2.5</div><div class="sub">Fallback (Free)</div></div>
+          <div style="width:1px;height:40px;background:var(--border);margin:0 6px;"></div>
+          <div class="box"><div class="name">🔮 DeepSeek V4</div><div class="sub">2-tier OCR+LLM</div></div>
+          <div style="width:40px;"></div>
+          <div class="box"><div class="name">🗄️ Supabase</div><div class="sub">Realtime DB</div></div>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-card anim">
+            <h3><span style="font-size:20px;">📱</span> Frontend</h3>
+            <div class="tech-list">
+              <div class="tech-row"><span class="label">Framework</span><span class="val">React 19.2.6</span></div>
+              <div class="tech-row"><span class="label">Build</span><span class="val">Vite 8.0.12</span></div>
+              <div class="tech-row"><span class="label">Realtime</span><span class="val">@supabase/supabase-js</span></div>
+              <div class="tech-row"><span class="label">Design</span><span class="val">MoMo Theme CSS</span></div>
+              <div class="tech-row"><span class="label">Pages</span><span class="val">Upload → Review → Pick → Pay</span></div>
+            </div>
+          </div>
+          <div class="arch-card anim">
+            <h3><span style="font-size:20px;">⚙️</span> Backend & Database</h3>
+            <div class="tech-list">
+              <div class="tech-row"><span class="label">API</span><span class="val">FastAPI + Uvicorn</span></div>
+              <div class="tech-row"><span class="label">Validation</span><span class="val">Pydantic 2.5</span></div>
+              <div class="tech-row"><span class="label">Database</span><span class="val">Supabase (PostgreSQL)</span></div>
+              <div class="tech-row"><span class="label">Sync</span><span class="val">Realtime + localStorage</span></div>
+              <div class="tech-row"><span class="label">Deploy</span><span class="val">Cloudflare Pages + Pinggy</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-num">06 / 11</div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 7: AI DEEP DIVE ========== -->
+  <div class="slide" id="s7">
+    <div class="slide-inner">
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:36px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>AI Deep Dive</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Prompt Engineering & <span class="accent">Multi-Provider</span></h2>
+        </div>
+        <div class="ai-grid" style="flex:1;">
+          <div class="prompt-card anim">
+            <h3>📝 11 Quy tắc trong System Prompt</h3>
+            <div class="rule-row"><div class="rule-num">1-4</div><div>Chỉ trả JSON, phân loại item, tính confidence score</div></div>
+            <div class="rule-row"><div class="rule-num">5-6</div><div>Phân biệt VAT, fallback bill mờ</div></div>
+            <div class="rule-row"><div class="rule-num">7-8</div><div>Khớp grand_total, xử lý bill viết tay / gộp món</div></div>
+            <div class="rule-row highlight-rule"><div class="rule-num">9</div><div><strong>Chiến lược đa cột:</strong> Đọc Thành Tiền trước → Tính ngược Đơn Giá</div></div>
+            <div class="rule-row highlight-rule"><div class="rule-num">10</div><div><strong>Cross-validation:</strong> Kiểm tra SL × Giá == Thành Tiền</div></div>
+            <div class="rule-row highlight-rule"><div class="rule-num">11</div><div><strong>Giấy nhiệt OCR:</strong> Cảnh giác nhầm số 6/8, 0/9, 5/3</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div class="prompt-card anim">
+              <h3>🔀 3 Chế độ hoạt động</h3>
+              <table class="provider-table">
+                <tr><th>Chế độ</th><th>Mô tả</th></tr>
+                <tr><td>Single</td><td>Dùng 1 provider duy nhất</td></tr>
+                <tr><td>Fallback</td><td>Tự chuyển provider khi lỗi</td></tr>
+                <tr><td>Compare</td><td>Chạy song song, so sánh kết quả</td></tr>
+              </table>
+            </div>
+            <div class="prompt-card anim">
+              <h3>🧠 3 AI Providers</h3>
+              <table class="provider-table">
+                <tr><th>Provider</th><th>Model</th><th>Đặc điểm</th></tr>
+                <tr><td>OpenAI</td><td>GPT-4o</td><td class="status-ok">json_object + detail=high</td></tr>
+                <tr><td>Gemini</td><td>2.5 Flash</td><td class="status-ok">Miễn phí, tốc độ nhanh</td></tr>
+                <tr><td>DeepSeek</td><td>V4 Flash</td><td class="status-ok">2-tier: OCR → Reasoning</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-num">07 / 11</div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 8: TEST DATA ========== -->
+  <div class="slide" id="s8">
+    <div class="slide-inner">
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:40px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>Test Data</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Các loại hóa đơn <span class="accent">thực tế</span> được kiểm thử</h2>
+        </div>
+        <div class="test-grid" style="flex:1;">
+          <div class="test-card anim">
             <div class="test-card-img">🧾</div>
             <div class="test-card-body">
               <div class="difficulty diff-easy">Easy</div>
               <p>Chữ in rõ, ít món, format chuẩn nhà hàng</p>
+              <div class="count">2 bills · Ground truth JSON ✓</div>
             </div>
           </div>
-          <div class="test-card">
+          <div class="test-card anim">
             <div class="test-card-img">📊</div>
             <div class="test-card-body">
               <div class="difficulty diff-medium">Medium</div>
-              <p>Có VAT riêng, phí phục vụ 5–10%</p>
+              <p>Có VAT riêng dòng, phí phục vụ 5–10%, nhiều món</p>
+              <div class="count">3 bills · Ground truth JSON ✓</div>
             </div>
           </div>
-          <div class="test-card">
+          <div class="test-card anim">
             <div class="test-card-img">✍️</div>
             <div class="test-card-body">
               <div class="difficulty diff-hard">Hard</div>
-              <p>Viết tay, số lượng theo kg, chữ mờ</p>
+              <p>Viết tay, số lượng theo kg, chữ mờ, bill dài</p>
+              <div class="count">2 bills · Ground truth JSON ✓</div>
             </div>
           </div>
-          <div class="test-card">
+          <div class="test-card anim">
             <div class="test-card-img">🔀</div>
             <div class="test-card-body">
               <div class="difficulty diff-edge">Edge Case</div>
-              <p>Khăn lạnh, chiết khấu, chia phí phức tạp</p>
+              <p>Khăn lạnh, chiết khấu, combo, phí chia phức tạp</p>
+              <div class="count">2 bills · Ground truth JSON ✓</div>
+            </div>
+          </div>
+        </div>
+        <p class="anim footnote">Tất cả bill đều có ground truth JSON để so sánh automated · Prompt đã qua 3 vòng iteration (v1 → v3)</p>
+      </div>
+      <div class="page-num">08 / 11</div>
+    </div>
+  </div>
+
+
+  <!-- ========== SLIDE 9: AUGMENT vs AUTOMATE ========== -->
+  <div class="slide" id="s9">
+    <div class="slide-inner">
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:36px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>AI Product Canvas</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Augment <span class="accent-gold">hay</span> Automate?</h2>
+        </div>
+        <div class="canvas-grid" style="flex:1;">
+          <div class="canvas-card augment anim">
+            <h3>💡 Value — Giá trị</h3>
+            <p>Dành cho <strong style="color:var(--text);">nhóm bạn đi ăn chung</strong>. Họ đau ở việc tính toán thủ công. AI giải được bước bóc tách bill — cách làm hiện tại (MoMo Moni) chỉ chia đều, không chia theo món.</p>
+          </div>
+          <div class="canvas-card anim">
+            <h3>🛡️ Trust — Niềm tin</h3>
+            <p>Khi AI đọc sai → hiển thị <span class="code-chip">confidence &lt; 0.7</span> + cảnh báo vàng. User sửa trực tiếp trên ReviewPage. Mọi kết quả AI đều qua bước Host review trước khi chia tiền.</p>
+          </div>
+          <div class="canvas-card anim">
+            <h3>⚙️ Feasibility — Khả thi</h3>
+            <p>Chi phí: ~$0.01/lần gọi GPT-4o. Gemini miễn phí làm fallback. Độ trễ: 3–5 giây. Ngưỡng dừng: nếu accuracy &lt; 70% trên bill thật → cần cải thiện prompt hoặc đổi model.</p>
+          </div>
+          <div class="canvas-card anim">
+            <h3>📊 Tín hiệu học</h3>
+            <p>Khi user chỉnh sửa kết quả AI → dữ liệu chỉnh sửa được log trong <span class="code-chip">edit_requests</span> table. Có thể dùng để fine-tune prompt hoặc tạo test suite cho regression.</p>
+          </div>
+          <div class="decision-bar anim">
+            <div class="marker">AUGMENT ✓</div>
+            <div style="font-size:18px;color:var(--muted);line-height:1.5;">
+              AI chỉ <strong style="color:var(--text);">gợi ý</strong> (bóc tách bill). Con người giữ quyền <strong style="color:var(--text);">kiểm tra, chỉnh sửa, và chốt</strong> ở cả 3 bước: Review → Pick → Pay. Vì sai thì hậu quả = chia tiền sai → gây mâu thuẫn nhóm → cần human-in-the-loop.
             </div>
           </div>
         </div>
       </div>
+      <div class="page-num">09 / 11</div>
     </div>
   </div>
 
-  <!-- SLIDE 7: RESULTS -->
-  <div class="slide" id="s7">
+  <!-- ========== SLIDE 10: FAILURE MODES ========== -->
+  <div class="slide" id="s10">
     <div class="slide-inner">
-      <div class="content">
-        <div class="tag"><span class="tag-dot"></span>AI Evaluation Results</div>
-        <h2 class="section-title">Kết quả <span class="accent">đánh giá</span></h2>
-        <div class="results-layout">
-          <div class="chart-area">
-            <div class="chart-label">Accuracy per metric</div>
-            <div class="bar-chart">
-              <div class="bar-row">
-                <div class="bar-meta">
-                  <span class="bar-name">Grand Total Accuracy</span>
-                  <span class="bar-val">88.9%</span>
-                </div>
-                <div class="bar-track"><div class="bar-fill cyan" style="width:88.9%"></div></div>
-              </div>
-              <div class="bar-row">
-                <div class="bar-meta">
-                  <span class="bar-name">Item Count Accuracy</span>
-                  <span class="bar-val">77.8%</span>
-                </div>
-                <div class="bar-track"><div class="bar-fill gold" style="width:77.8%"></div></div>
-              </div>
-              <div class="bar-row">
-                <div class="bar-meta">
-                  <span class="bar-name">Shared Fee Detection</span>
-                  <span class="bar-val">88.9%</span>
-                </div>
-                <div class="bar-track"><div class="bar-fill cyan" style="width:88.9%"></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="metrics-col">
-            <div class="metric-card">
-              <div>
-                <div class="metric-big">88.9%</div>
-                <div class="metric-label">Tổng tiền<br>chính xác</div>
-              </div>
-            </div>
-            <div class="metric-card">
-              <div>
-                <div class="metric-big" style="font-size: 40px">77.8%</div>
-                <div class="metric-label">Đọc đúng<br>tất cả các món</div>
-              </div>
-            </div>
-            <div class="metric-card">
-              <div>
-                <div class="metric-big" style="font-size: 40px">88.9%</div>
-                <div class="metric-label">Nhận diện<br>phí chung</div>
-              </div>
-            </div>
-          </div>
+      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:36px;">
+        <div>
+          <div class="tag anim"><span class="tag-dot"></span>Failure Modes & Mitigation</div>
+          <h2 class="section-title anim" style="margin-top:16px;">Xử lý <span class="accent">edge cases</span></h2>
         </div>
-        <p class="footnote">Tested on GPT-4o Vision · "Edge-case aware" prompt · 9 real-world Vietnamese bills</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 8: FAILURE MODES -->
-  <div class="slide" id="s8">
-    <div class="slide-inner">
-      <div class="content">
-        <div class="tag"><span class="tag-dot"></span>Failure Modes & Mitigation</div>
-        <h2 class="section-title">Xử lý <span class="accent">edge cases</span></h2>
-        <div class="failure-grid">
-          <div class="failure-card">
+        <div class="failure-grid" style="flex:1;">
+          <div class="failure-card anim">
             <div class="failure-header">
               <div class="failure-icon">✍️</div>
               <h3>Chữ viết tay mờ / xấu</h3>
             </div>
             <div>
               <div class="solution-label">Giải pháp</div>
-              <p>Gắn cờ <span class="code-chip">confidence &lt; 0.8</span> và <span class="code-chip">has_unclear_items: true</span>. Hiển thị cảnh báo UI yêu cầu user kiểm tra lại dòng đó trước khi chốt.</p>
+              <p>Gắn cờ <span class="code-chip">confidence &lt; 0.7</span> và <span class="code-chip">has_unclear_items: true</span>. UI hiển thị badge cảnh báo yêu cầu Host kiểm tra trước khi chốt.</p>
             </div>
           </div>
-          <div class="failure-card">
+          <div class="failure-card anim">
             <div class="failure-header">
               <div class="failure-icon">🏷️</div>
-              <h3>Chiết khấu / Khuyến mãi phức tạp</h3>
+              <h3>Chiết khấu / Khuyến mãi</h3>
             </div>
             <div>
               <div class="solution-label">Giải pháp</div>
-              <p>Prompt AI gom chiết khấu thành 1 dòng <span class="code-chip">negative_fee</span>, phân bổ đều cho tổng bill hoặc cho phép user gắn vào 1 người cụ thể.</p>
+              <p>Prompt AI gom chiết khấu thành dòng <span class="code-chip">negative_fee</span>, phân bổ đều cho bill hoặc cho phép Host gắn vào người cụ thể.</p>
             </div>
           </div>
-          <div class="failure-card">
+          <div class="failure-card anim">
             <div class="failure-header">
               <div class="failure-icon">🔢</div>
               <h3>Số lượng theo kg / trọng lượng</h3>
             </div>
             <div>
               <div class="solution-label">Giải pháp</div>
-              <p>AI trả về <span class="code-chip">unit: "kg"</span> kèm <span class="code-chip">quantity</span> thực tế. UI hiển thị theo đơn vị gốc — không cố quy đổi sang phần ăn cố định.</p>
+              <p>AI cho phép <span class="code-chip">quantity: float</span> và <span class="code-chip">unit_price: null</span>. UI hiển thị theo đơn vị gốc, không cố quy đổi sang phần ăn.</p>
             </div>
           </div>
-          <div class="failure-card">
+          <div class="failure-card anim">
             <div class="failure-header">
               <div class="failure-icon">📐</div>
-              <h3>Hóa đơn bị nghiêng / mờ ảnh</h3>
+              <h3>Bill bị nghiêng / mờ ảnh</h3>
             </div>
             <div>
               <div class="solution-label">Giải pháp</div>
-              <p>Pre-processing bước đầu: auto-rotate, tăng contrast. Nếu <span class="code-chip">confidence &lt; 0.5</span>, yêu cầu user chụp lại với hướng dẫn trực quan.</p>
+              <p>AI Preprocessor tự động xoay (EXIF auto-rotate), resize max 2048px, tăng tương phản & độ nét trước khi gọi OCR. Nếu bill vẫn quá mờ (<span class="code-chip">confidence &lt; 0.5</span>), tự động dùng <span class="code-chip">raw_text_fallback</span>.</p>
             </div>
           </div>
         </div>
       </div>
+      <div class="page-num">10 / 11</div>
     </div>
   </div>
 
-  <!-- SLIDE 9: Q&A -->
-  <div class="slide" id="s9">
+  <!-- ========== SLIDE 11: Q&A ========== -->
+  <div class="slide" id="s11">
     <div class="slide-inner">
-      <div class="orb3"></div>
+      <div class="orb orb-cyan" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
       <div class="content">
-        <div class="tag"><span class="tag-dot"></span>AI Product Labs</div>
-        <div class="qa-big">Q&A</div>
-        <p class="qa-sub">Cảm ơn các bạn đã lắng nghe! 🙌</p>
-        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:8px;">
-          <div class="tech-tag">GPT-4o Vision</div>
-          <div class="tech-tag">88.9% Accuracy</div>
-          <div class="tech-tag">9 Real Bills Tested</div>
+        <div class="tag anim"><span class="tag-dot"></span>AI Product Labs · Day 06</div>
+        <div class="qa-big anim" style="font-family: 'DM Sans', sans-serif; font-size: 130px; font-weight: 600; letter-spacing: -1px; line-height: 1.15; margin-top: 40px; text-shadow: 0 10px 40px rgba(0,229,200,0.2);">
+          Cảm ơn các bạn<br>đã lắng nghe! <span style="font-size: 100px; vertical-align: middle;">🙌</span>
         </div>
       </div>
     </div>
@@ -758,11 +986,11 @@
 
 </div><!-- /deck -->
 
-<!-- NAVIGATION -->
+<!-- NAV -->
 <div id="nav">
   <button class="nav-btn" id="prevBtn">&#8592;</button>
   <div class="nav-dots" id="dots"></div>
-  <span id="slide-counter">1 / 9</span>
+  <span id="slide-counter">1 / 11</span>
   <button class="nav-btn" id="nextBtn">&#8594;</button>
   <button class="nav-btn" id="fsBtn" title="Fullscreen">⛶</button>
 </div>
@@ -773,13 +1001,14 @@
 const slides = document.querySelectorAll('.slide');
 const dotsContainer = document.getElementById('dots');
 const counter = document.getElementById('slide-counter');
+const total = slides.length;
 let current = 0;
 
 // Fullscreen & Scaling
 function resizeDeck() {
-  const slides = document.querySelectorAll('.slide-inner');
-  const scale = Math.min(window.innerWidth / 2133, window.innerHeight / 1200) * 0.98; // 0.98 to avoid scrollbars
-  slides.forEach(s => {
+  const inners = document.querySelectorAll('.slide-inner');
+  const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080) * 0.97;
+  inners.forEach(s => {
     s.style.transform = `scale(${scale})`;
     s.style.transformOrigin = 'center center';
   });
@@ -789,12 +1018,11 @@ resizeDeck();
 
 document.getElementById('fsBtn').onclick = () => {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(err => {});
+    document.documentElement.requestFullscreen().catch(() => {});
   } else {
     document.exitFullscreen();
   }
 };
-
 
 // Build dots
 slides.forEach((_, i) => {
@@ -805,28 +1033,29 @@ slides.forEach((_, i) => {
 });
 
 function goTo(n) {
+  if (n < 0 || n >= total || n === current) return;
   slides[current].classList.remove('active');
-  slides[current].classList.add('exit');
-  setTimeout(() => slides[current].classList.remove('exit'), 600);
-  current = (n + slides.length) % slides.length;
-  slides[current].classList.add('active');
-  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
-  counter.textContent = `${current + 1} / ${slides.length}`;
+  slides[n].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === n));
+  counter.textContent = `${n + 1} / ${total}`;
+  current = n;
 }
 
 document.getElementById('prevBtn').onclick = () => goTo(current - 1);
 document.getElementById('nextBtn').onclick = () => goTo(current + 1);
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1);
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(current - 1);
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+  if (e.key === 'f' || e.key === 'F') document.getElementById('fsBtn').click();
 });
 
-// Swipe
-let tx = 0;
-document.getElementById('deck').addEventListener('touchstart', e => tx = e.touches[0].clientX);
-document.getElementById('deck').addEventListener('touchend', e => {
-  const dx = tx - e.changedTouches[0].clientX;
-  if (Math.abs(dx) > 50) goTo(current + (dx > 0 ? 1 : -1));
+// Touch support
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
 });
 </script>
 </body>
