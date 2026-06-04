@@ -239,6 +239,7 @@ export default function App() {
           memberStatuses={memberStatuses}
           setMemberStatuses={setMemberStatuses}
           memberPayments={memberPayments}
+          setMemberPayments={setMemberPayments}
           editRequests={editRequests}
           setEditRequests={setEditRequests}
           onNext={() => {

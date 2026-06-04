@@ -179,21 +179,75 @@ export default function PickItemsPage({
   const myStatus = memberStatuses[activeMemberId] || 'picking';
   const hasPaid = memberPayments[activeMemberId] || false;
 
-  // Toggle item selection for current active member
+  // Toggle item selection for current active member (handles checkbox toggling)
   const handleToggleItem = (itemId) => {
     if (!activeMemberId) return;
-    // If bill is locked or member has submitted, disable toggling!
-    if (billStatus === 'locked' || myStatus === 'submitted') return;
+    // If bill is locked, member has submitted, or is approved, disable toggling!
+    if (billStatus === 'locked' || myStatus === 'submitted' || myStatus === 'approved') return;
 
     setItemSelections(prev => {
       const currentSelections = prev[itemId] || [];
-      const exists = currentSelections.includes(activeMemberId);
-      
-      const newSelections = exists 
-        ? currentSelections.filter(id => id !== activeMemberId)
-        : [...currentSelections, activeMemberId];
-        
-      return { ...prev, [itemId]: newSelections };
+      const myQty = currentSelections.filter(id => id === activeMemberId).length;
+
+      if (myQty > 0) {
+        // Toggle OFF: remove all selections of the active user for this item
+        const newSelections = currentSelections.filter(id => id !== activeMemberId);
+        return { ...prev, [itemId]: newSelections };
+      } else {
+        // Toggle ON: add 1 unit for the active user
+        const item = billItems.find(i => i.id === itemId);
+        if (!item) return prev;
+        const othersQty = currentSelections.length; // total selected by others is selections.length since myQty is 0
+        const maxAllowed = item.qty === 1 ? 1 : Math.max(0, item.qty - othersQty);
+        if (maxAllowed === 0) return prev; // cannot select if no units left
+
+        return { ...prev, [itemId]: [...currentSelections, activeMemberId] };
+      }
+    });
+  };
+
+  const handleIncreaseQty = (itemId) => {
+    if (!activeMemberId) return;
+    if (billStatus === 'locked' || myStatus === 'submitted' || myStatus === 'approved') return;
+
+    const item = billItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    setItemSelections(prev => {
+      const currentSelections = prev[itemId] || [];
+      const myQty = currentSelections.filter(id => id === activeMemberId).length;
+      const othersQty = currentSelections.length - myQty;
+      const maxAllowed = item.qty === 1 ? 1 : Math.max(0, item.qty - othersQty);
+
+      if (myQty >= maxAllowed) return prev; // Cannot select more than allowed
+
+      return {
+        ...prev,
+        [itemId]: [...currentSelections, activeMemberId]
+      };
+    });
+  };
+
+  const handleDecreaseQty = (itemId) => {
+    if (!activeMemberId) return;
+    if (billStatus === 'locked' || myStatus === 'submitted' || myStatus === 'approved') return;
+
+    setItemSelections(prev => {
+      const currentSelections = prev[itemId] || [];
+      const myQty = currentSelections.filter(id => id === activeMemberId).length;
+      if (myQty === 0) return prev;
+
+      // Remove exactly one occurrence of activeMemberId
+      const index = currentSelections.indexOf(activeMemberId);
+      if (index === -1) return prev;
+
+      const newSelections = [...currentSelections];
+      newSelections.splice(index, 1);
+
+      return {
+        ...prev,
+        [itemId]: newSelections
+      };
     });
   };
 
@@ -206,31 +260,64 @@ export default function PickItemsPage({
     }));
   };
 
-  // Calculate bill sharing for the active member
-  let personalCost = 0;
-  let sharedCost = 0;
+  // Proportional cost split calculations with host rounding adjustment
+  const totalSharedFees = sharedFees.reduce((sum, f) => sum + f.amount, 0);
+  const itemsTotal = billItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const grandTotal = itemsTotal + totalSharedFees;
 
-  billItems.forEach(item => {
-    const selections = itemSelections[item.id] || [];
-    const isSelectedByMe = selections.includes(activeMemberId);
+  const calculateAllMemberCosts = () => {
+    const costs = {};
+    let sumRounded = 0;
     
-    if (isSelectedByMe) {
-      const totalItemAmount = item.price * item.qty;
-      const splitCount = selections.length;
+    members.forEach(m => {
+      let pCost = 0;
+      let sCost = 0;
       
-      if (splitCount === 1) {
-        personalCost += totalItemAmount;
-      } else {
-        sharedCost += totalItemAmount / splitCount;
+      billItems.forEach(item => {
+        const selections = itemSelections[item.id] || [];
+        const myQty = selections.filter(id => id === m.id).length;
+        if (myQty > 0) {
+          const totalItemAmount = item.price * item.qty;
+          const totalSelected = selections.length;
+          const myPortion = (myQty / totalSelected) * totalItemAmount;
+          if (totalSelected === myQty) {
+            pCost += myPortion;
+          } else {
+            sCost += myPortion;
+          }
+        }
+      });
+      
+      const myFeeShare = totalSharedFees / (members.length || 1);
+      const rawTotal = pCost + sCost + myFeeShare;
+      costs[m.id] = {
+        personalCost: pCost,
+        sharedCost: sCost,
+        myFeeShare,
+        total: Math.round(rawTotal)
+      };
+      sumRounded += costs[m.id].total;
+    });
+    
+    // Adjust rounding difference on Host (or first member)
+    const diff = grandTotal - sumRounded;
+    if (diff !== 0 && members.length > 0) {
+      const hostMember = members.find(m => m.id === 'host') || members[0];
+      if (costs[hostMember.id]) {
+        costs[hostMember.id].total += diff;
+        costs[hostMember.id].sharedCost += diff; // adjust shared breakdown
       }
     }
-  });
+    return costs;
+  };
 
-  // Fees are divided equally among all members
-  const totalSharedFees = sharedFees.reduce((sum, f) => sum + f.amount, 0);
-  const myFeeShare = totalSharedFees / (members.length || 1);
+  const memberCosts = calculateAllMemberCosts();
+  const activeMemberCost = memberCosts[activeMemberId] || { personalCost: 0, sharedCost: 0, myFeeShare: 0, total: 0 };
 
-  const myTotalCost = Math.round(personalCost + sharedCost + myFeeShare);
+  const personalCost = activeMemberCost.personalCost;
+  const sharedCost = activeMemberCost.sharedCost;
+  const myFeeShare = activeMemberCost.myFeeShare;
+  const myTotalCost = activeMemberCost.total;
 
   const handlePay = () => {
     setLastPaymentAmount(myTotalCost);
@@ -391,7 +478,14 @@ export default function PickItemsPage({
 
       {/* Dynamic Status Banner */}
       {billStatus === 'picking' ? (
-        myStatus === 'submitted' ? (
+        myStatus === 'approved' ? (
+          <div className="alert-note" style={{ background: 'rgba(16,185,129,0.05)', borderLeft: '3px solid var(--color-success)', color: '#065f46', marginBottom: 0 }}>
+            <span>✓</span>
+            <div>
+              <strong>Host đã duyệt phần ăn!</strong> Bạn có thể tiến hành chuyển khoản thanh toán ngay bằng nút ở dưới.
+            </div>
+          </div>
+        ) : myStatus === 'submitted' ? (
           <div className="alert-note" style={{ background: 'rgba(16,185,129,0.05)', borderLeft: '3px solid var(--color-success)', color: '#065f46', marginBottom: 0 }}>
             <span>⏳</span>
             <div>
@@ -439,14 +533,35 @@ export default function PickItemsPage({
         <div className="bill-list">
           {billItems.map(item => {
             const selections = itemSelections[item.id] || [];
-            const isCheckedByMe = selections.includes(activeMemberId);
+            const myQty = selections.filter(id => id === activeMemberId).length;
+            const isCheckedByMe = myQty > 0;
             const totalItemAmount = item.price * item.qty;
-            const splitCount = selections.length;
+            const totalSelected = selections.length;
+            
+            const othersQty = totalSelected - myQty;
+            const maxAllowed = item.qty === 1 ? 1 : Math.max(0, item.qty - othersQty);
+            const myPortion = totalSelected > 0 ? (myQty / totalSelected) * totalItemAmount : totalItemAmount;
+
+            const displayAmount = myQty > 0 
+              ? myPortion 
+              : (totalSelected > 0 ? totalItemAmount / totalSelected : totalItemAmount);
 
             // Check if there is an active/pending edit request for this item from this user
             const myEditReq = editRequests && editRequests.find(r => r.itemId === item.id && r.memberName === activeMember?.name && r.status === 'pending');
             const approvedReq = editRequests && editRequests.find(r => r.itemId === item.id && r.memberName === activeMember?.name && r.status === 'approved');
             const rejectedReq = editRequests && editRequests.find(r => r.itemId === item.id && r.memberName === activeMember?.name && r.status === 'rejected');
+
+            // Group selections to avoid duplicate keys and display nicely
+            const getGroupedSelections = (selectionsList) => {
+              const counts = {};
+              selectionsList.forEach(id => {
+                counts[id] = (counts[id] || 0) + 1;
+              });
+              return Object.entries(counts).map(([memberId, count]) => ({
+                memberId,
+                qty: count
+              }));
+            };
 
             return (
               <div 
@@ -459,7 +574,7 @@ export default function PickItemsPage({
               >
                 <div 
                   onClick={() => handleToggleItem(item.id)}
-                  style={{ display: 'flex', alignItems: 'center', cursor: (billStatus === 'locked' || myStatus === 'submitted') ? 'not-allowed' : 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', cursor: (billStatus === 'locked' || myStatus === 'submitted' || myStatus === 'approved') ? 'not-allowed' : 'pointer' }}
                 >
                   {/* Custom Checkbox */}
                   <div className={`item-checkbox ${isCheckedByMe ? 'checked' : ''}`}>
@@ -470,8 +585,65 @@ export default function PickItemsPage({
                     )}
                   </div>
 
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{item.name}</div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{item.name}</span>
+                      {isCheckedByMe && item.qty > 1 && (
+                        <div 
+                          onClick={(e) => e.stopPropagation()} 
+                          style={{ 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '8px', 
+                            background: '#ffffff', 
+                            border: '1px solid rgba(0,0,0,0.1)', 
+                            borderRadius: '12px', 
+                            padding: '1px 6px',
+                            boxShadow: 'var(--shadow-sm)'
+                          }}
+                        >
+                          <button 
+                            type="button"
+                            onClick={() => handleDecreaseQty(item.id)}
+                            disabled={billStatus === 'locked' || myStatus === 'submitted' || myStatus === 'approved'}
+                            style={{ 
+                              border: 'none', 
+                              background: 'none', 
+                              color: 'var(--color-primary)', 
+                              fontWeight: 'bold', 
+                              fontSize: '0.95rem', 
+                              cursor: 'pointer',
+                              padding: '0 4px',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            -
+                          </button>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 700, minWidth: '12px', textAlign: 'center', color: 'var(--color-text-primary)' }}>
+                            {myQty}
+                          </span>
+                          <button 
+                            type="button"
+                            onClick={() => handleIncreaseQty(item.id)}
+                            disabled={billStatus === 'locked' || myStatus === 'submitted' || myStatus === 'approved' || myQty >= maxAllowed}
+                            style={{ 
+                              border: 'none', 
+                              background: 'none', 
+                              color: myQty >= maxAllowed ? 'var(--color-text-muted)' : 'var(--color-primary)', 
+                              fontWeight: 'bold', 
+                              fontSize: '0.95rem', 
+                              cursor: myQty >= maxAllowed ? 'not-allowed' : 'pointer',
+                              padding: '0 4px',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
                       {item.qty} x {item.price.toLocaleString()} đ = {totalItemAmount.toLocaleString()} đ
                     </div>
@@ -479,31 +651,31 @@ export default function PickItemsPage({
 
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: isCheckedByMe ? 'var(--color-success)' : 'var(--color-text-primary)' }}>
-                      {splitCount > 0 
-                        ? `${Math.round(totalItemAmount / splitCount).toLocaleString()} đ` 
-                        : `${totalItemAmount.toLocaleString()} đ`
-                      }
+                      {Math.round(displayAmount).toLocaleString()} đ
                     </div>
-                    {splitCount > 1 && (
+                    {totalSelected > 0 && (
                       <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                        chia {splitCount} người
+                        {totalSelected === myQty 
+                          ? (myQty > 1 ? `bạn chọn ${myQty} phần` : 'phần riêng của bạn') 
+                          : `chia ${totalSelected} phần ${myQty > 0 ? `(bạn lấy ${myQty})` : ''}`
+                        }
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Show badges of people who checked */}
-                {selections.length > 0 && (
+                {totalSelected > 0 && (
                   <div className="item-selections">
-                    {selections.map(mId => {
-                      const member = members.find(m => m.id === mId);
-                      const isMe = mId === activeMemberId;
+                    {getGroupedSelections(selections).map(({ memberId, qty }) => {
+                      const member = members.find(m => m.id === memberId);
+                      const isMe = memberId === activeMemberId;
                       return (
                         <span 
-                          key={mId} 
+                          key={memberId} 
                           className={`selection-dot ${isMe ? 'mine' : ''}`}
                         >
-                          {member ? member.name.split(' ')[0] : mId}
+                          {member ? member.name.split(' ')[0] : memberId} {qty > 1 && `(x${qty})`}
                         </span>
                       );
                     })}
@@ -541,7 +713,7 @@ export default function PickItemsPage({
                   </div>
 
                   {/* Request edit button */}
-                  {billStatus === 'picking' && myStatus !== 'submitted' && !myEditReq && (
+                  {billStatus === 'picking' && myStatus !== 'submitted' && myStatus !== 'approved' && !myEditReq && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -610,49 +782,88 @@ export default function PickItemsPage({
         </div>
         
         <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-          {activeMemberId === 'host' && (
-            <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
-              Sửa bill (Host)
-            </button>
-          )}
-
-          {billStatus === 'picking' ? (
-            myStatus === 'submitted' ? (
-              <button 
-                disabled 
-                className="btn btn-secondary" 
-                style={{ flex: 2, background: 'rgba(0,0,0,0.03)', color: 'var(--color-text-muted)', cursor: 'not-allowed', borderColor: 'rgba(0,0,0,0.05)' }}
-              >
-                ⏳ Đang chờ Host duyệt...
-              </button>
+          {activeMemberId === 'host' ? (
+            billStatus === 'locked' ? (
+              <>
+                <button 
+                  onClick={onBack} 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1 }}
+                >
+                  📊 Tiến độ thu tiền
+                </button>
+                {hasPaid ? (
+                  <button 
+                    disabled 
+                    className="btn btn-success" 
+                    style={{ flex: 1.5, background: 'var(--gradient-success)', opacity: 0.9, border: 'none', boxShadow: 'none', cursor: 'not-allowed' }}
+                  >
+                    ✓ Đã xong phần mình
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handlePay} 
+                    disabled={myTotalCost === 0} 
+                    className="btn btn-primary" 
+                    style={{ flex: 1.5, background: 'var(--gradient-success)', opacity: myTotalCost === 0 ? 0.5 : 1, border: 'none', boxShadow: 'none' }}
+                  >
+                    💸 Thanh toán phần mình
+                  </button>
+                )}
+              </>
             ) : (
-              <button 
-                onClick={handleSubmitSelections}
-                disabled={myTotalCost === 0}
-                className="btn btn-primary"
-                style={{ flex: 2, background: 'var(--gradient-momo)', border: 'none', boxShadow: 'none', opacity: myTotalCost === 0 ? 0.5 : 1 }}
-              >
-                📤 Gửi Host duyệt phần ăn
-              </button>
+              <>
+                <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
+                  ✏️ Sửa bill (Host)
+                </button>
+                <button 
+                  onClick={onBack} 
+                  className="btn btn-primary" 
+                  style={{ flex: 2, background: 'var(--gradient-momo)', border: 'none', boxShadow: 'none' }}
+                >
+                  📊 Vào màn hình Duyệt
+                </button>
+              </>
             )
           ) : (
-            hasPaid ? (
-              <button 
-                disabled 
-                className="btn btn-success" 
-                style={{ flex: 2, background: 'var(--gradient-success)', opacity: 0.9, border: 'none', boxShadow: 'none', cursor: 'not-allowed' }}
-              >
-                ✓ Đã thanh toán xong
-              </button>
+            (billStatus === 'locked' || myStatus === 'approved') ? (
+              hasPaid ? (
+                <button 
+                  disabled 
+                  className="btn btn-success" 
+                  style={{ flex: 1, background: 'var(--gradient-success)', opacity: 0.9, border: 'none', boxShadow: 'none', cursor: 'not-allowed' }}
+                >
+                  ✓ Đã thanh toán xong
+                </button>
+              ) : (
+                <button 
+                  onClick={handlePay} 
+                  disabled={myTotalCost === 0} 
+                  className="btn btn-primary" 
+                  style={{ flex: 1, background: 'var(--gradient-success)', opacity: myTotalCost === 0 ? 0.5 : 1, border: 'none', boxShadow: 'none' }}
+                >
+                  💸 Thanh toán ngay
+                </button>
+              )
             ) : (
-              <button 
-                onClick={handlePay} 
-                disabled={myTotalCost === 0} 
-                className="btn btn-primary" 
-                style={{ flex: 2, background: 'var(--gradient-success)', opacity: myTotalCost === 0 ? 0.5 : 1, border: 'none', boxShadow: 'none' }}
-              >
-                💸 Thanh toán ngay
-              </button>
+              myStatus === 'submitted' ? (
+                <button 
+                  disabled 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1, background: 'rgba(0,0,0,0.03)', color: 'var(--color-text-muted)', cursor: 'not-allowed', borderColor: 'rgba(0,0,0,0.05)' }}
+                >
+                  ⏳ Đang chờ Host duyệt...
+                </button>
+              ) : (
+                <button 
+                  onClick={handleSubmitSelections}
+                  disabled={myTotalCost === 0}
+                  className="btn btn-primary"
+                  style={{ flex: 1, background: 'var(--gradient-momo)', border: 'none', boxShadow: 'none', opacity: myTotalCost === 0 ? 0.5 : 1 }}
+                >
+                  📤 Gửi Host duyệt phần ăn
+                </button>
+              )
             )
           )}
         </div>

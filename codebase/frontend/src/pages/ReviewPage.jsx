@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ComboPopup from '../components/ComboPopup';
+import PaymentModal from '../components/PaymentModal';
 
 export default function ReviewPage({
   receiptImage,
@@ -18,6 +19,7 @@ export default function ReviewPage({
   memberStatuses,
   setMemberStatuses,
   memberPayments,
+  setMemberPayments,
   editRequests,
   setEditRequests,
   onNext,
@@ -26,6 +28,7 @@ export default function ReviewPage({
   const [showFullReceipt, setShowFullReceipt] = useState(false);
   const [comboItemToResolve, setComboItemToResolve] = useState(null); // stores item if popup is open
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showHostPaymentSuccess, setShowHostPaymentSuccess] = useState(false);
   
   // Member management states
   const [newMemberInput, setNewMemberInput] = useState('');
@@ -35,7 +38,7 @@ export default function ReviewPage({
   const getUnselectedItems = () => {
     return billItems.filter(item => {
       const selections = itemSelections[item.id] || [];
-      return selections.length === 0;
+      return selections.length < item.qty;
     });
   };
 
@@ -81,11 +84,29 @@ export default function ReviewPage({
 
   // Resolve Low-confidence Combo Item
   const handleResolveCombo = (itemId, choice) => {
+    // If choice is 'all', auto-select this item for all current members
+    if (choice === 'all') {
+      setItemSelections(prev => {
+        const allMemberIds = members.map(m => m.id);
+        return {
+          ...prev,
+          [itemId]: allMemberIds
+        };
+      });
+    } else if (choice === 'individual') {
+      // Clear selections so people can pick individually
+      setItemSelections(prev => ({
+        ...prev,
+        [itemId]: []
+      }));
+    }
+
     setBillItems(prev => prev.map(item => {
       if (item.id === itemId) {
         return { 
           ...item, 
-          confidence: 'high', // marked as resolved
+          confidence: 'resolved', // mark as resolved
+          isCombo: true, // flag to keep it editable
           aiNote: choice === 'all' ? 'Đã gán: Chia đều cả bàn' : 'Đã gán: Tự tích chọn' 
         };
       }
@@ -159,36 +180,88 @@ export default function ReviewPage({
     setEditRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: 'rejected' } : r));
   };
 
+  const handleApproveMemberSelections = (memberId) => {
+    setMemberStatuses(prev => ({
+      ...prev,
+      [memberId]: 'approved'
+    }));
+  };
+
+  const handleRejectMemberSelections = (memberId) => {
+    setMemberStatuses(prev => ({
+      ...prev,
+      [memberId]: 'picking'
+    }));
+  };
+
   // Calculate sum of food items
   const itemsTotal = billItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   // Calculate sum of shared fees
   const feesTotal = sharedFees.reduce((sum, fee) => sum + fee.amount, 0);
   const grandTotal = itemsTotal + feesTotal;
 
-  // Calculate split costs per member
-  const calculateMemberCost = (memberId) => {
-    let personalCost = 0;
-    let sharedCost = 0;
-
-    billItems.forEach(item => {
-      const selections = itemSelections[item.id] || [];
-      const isSelected = selections.includes(memberId);
+  // Calculate split costs per member using proportional splitting and adjusting rounding difference on Host
+  const calculateAllMemberCosts = () => {
+    const costs = {};
+    let sumRounded = 0;
+    
+    members.forEach(m => {
+      let pCost = 0;
+      let sCost = 0;
       
-      if (isSelected) {
-        const totalItemAmount = item.price * item.qty;
-        const splitCount = selections.length;
-        
-        if (splitCount === 1) {
-          personalCost += totalItemAmount;
-        } else {
-          sharedCost += totalItemAmount / splitCount;
+      billItems.forEach(item => {
+        const selections = itemSelections[item.id] || [];
+        const myQty = selections.filter(id => id === m.id).length;
+        if (myQty > 0) {
+          const totalItemAmount = item.price * item.qty;
+          const totalSelected = selections.length;
+          const myPortion = (myQty / totalSelected) * totalItemAmount;
+          if (totalSelected === myQty) {
+            pCost += myPortion;
+          } else {
+            sCost += myPortion;
+          }
         }
-      }
+      });
+      
+      const myFeeShare = feesTotal / (members.length || 1);
+      const rawTotal = pCost + sCost + myFeeShare;
+      costs[m.id] = {
+        personalCost: pCost,
+        sharedCost: sCost,
+        myFeeShare,
+        total: Math.round(rawTotal)
+      };
+      sumRounded += costs[m.id].total;
     });
-
-    const myFeeShare = feesTotal / (members.length || 1);
-    return Math.round(personalCost + sharedCost + myFeeShare);
+    
+    // Adjust rounding difference on Host (or first member)
+    const diff = grandTotal - sumRounded;
+    if (diff !== 0 && members.length > 0) {
+      const hostMember = members.find(m => m.id === 'host') || members[0];
+      if (costs[hostMember.id]) {
+        costs[hostMember.id].total += diff;
+        costs[hostMember.id].sharedCost += diff; // adjust shared breakdown
+      }
+    }
+    return costs;
   };
+
+  const memberCosts = calculateAllMemberCosts();
+
+  const calculateMemberCost = (memberId) => {
+    return memberCosts[memberId]?.total || 0;
+  };
+
+  const getMemberSelectedItems = (memberId) => {
+    return billItems.filter(item => {
+      const selections = itemSelections[item.id] || [];
+      return selections.includes(memberId);
+    });
+  };
+
+  const friends = members.filter(m => m.id !== 'host');
+  const allFriendsPaid = friends.length > 0 && friends.every(m => memberPayments[m.id]);
 
   // Generate web URL for link sharing
   const shareUrl = `${window.location.origin}${window.location.pathname}?page=pick`;
@@ -242,6 +315,16 @@ export default function ReviewPage({
         </div>
       </div>
 
+      {/* Success Notice when all friends paid */}
+      {allFriendsPaid && (
+        <div className="alert-note" style={{ background: 'rgba(16,185,129,0.06)', borderLeft: '3px solid var(--color-success)', color: '#065f46', marginBottom: '10px' }}>
+          <span>🎉</span>
+          <div>
+            <strong>Tất cả bạn bè đã thanh toán xong!</strong> Số tiền chia nhóm đã được hoàn tất chuyển khoản đầy đủ cho bạn.
+          </div>
+        </div>
+      )}
+
       {/* Warning Notice about AI Mistakes */}
       {billItems.some(i => i.aiMistake) && (
         <div className="alert-note">
@@ -261,18 +344,33 @@ export default function ReviewPage({
         <div className="bill-list">
           {billItems.map(item => {
             const isLowConf = item.confidence === 'low';
+            const isComboItem = isLowConf || item.confidence === 'resolved' || item.isCombo || item.id === 2;
             const isMistake = item.aiMistake;
+            const selections = itemSelections[item.id] || [];
+            const totalSelected = selections.length;
+
+            let progressBadge = null;
+            if (totalSelected === 0) {
+              progressBadge = <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.05)', color: 'var(--color-danger)', border: '1px solid rgba(239, 68, 68, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Chưa chọn (0/{item.qty})</span>;
+            } else if (totalSelected < item.qty) {
+              progressBadge = <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.05)', color: 'var(--color-warning)', border: '1px solid rgba(245, 158, 11, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Chưa đủ ({totalSelected}/{item.qty})</span>;
+            } else if (totalSelected === item.qty) {
+              progressBadge = <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.06)', color: 'var(--color-success)', border: '1px solid rgba(16, 185, 129, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Đủ ({totalSelected}/{item.qty})</span>;
+            } else {
+              progressBadge = <span className="badge" style={{ background: 'rgba(139, 92, 246, 0.05)', color: '#6d28d9', border: '1px solid rgba(139, 92, 246, 0.15)', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>Chia {totalSelected} ({totalSelected}/{item.qty})</span>;
+            }
 
             return (
               <div 
                 key={item.id} 
-                className={`bill-item-card ${isLowConf ? 'low-conf' : ''} ${isMistake ? 'mistake' : ''}`}
+                className={`bill-item-card ${isComboItem ? 'low-conf' : ''} ${isMistake ? 'mistake' : ''}`}
               >
                 <div className="bill-item-main">
                   <div className="bill-item-info">
                     <div className="bill-item-name" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                       <span style={{ flex: 1 }}>{item.name}</span>
-                      <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                      <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
+                        {progressBadge}
                         {isLowConf && <span className="badge badge-low-conf" style={{ whiteSpace: 'nowrap' }}>Combo?</span>}
                         {isMistake && <span className="badge badge-mistake" style={{ whiteSpace: 'nowrap' }}>Nhầm Lẫn AI</span>}
                       </div>
@@ -309,15 +407,15 @@ export default function ReviewPage({
                 </div>
 
                 {/* Actions row for Low confidence or Correction paths */}
-                {(isLowConf || isMistake) && (
+                {(isComboItem || isMistake) && (
                   <div className="item-actions-panel">
-                    {isLowConf && (
+                    {isComboItem && (
                       <button 
                         onClick={() => setComboItemToResolve(item)} 
                         className="btn btn-warning" 
                         style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
                       >
-                        ⚡️ Giải quyết món Combo
+                        ⚡️ {item.confidence === 'resolved' ? "Thay đổi cách chia Combo" : "⚡️ Giải quyết món Combo"}
                       </button>
                     )}
                     {isMistake && (
@@ -354,8 +452,9 @@ export default function ReviewPage({
 
       {/* 4.5. Real-time Split Monitoring (Bảng theo dõi chia tiền nhóm) */}
       <div className="glass-card" style={{ marginTop: '10px' }}>
-        <h3 style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 600 }}>
-          📊 Theo dõi tiến độ chia tiền
+        <h3 style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>📊 Theo dõi tiến độ chia tiền</span>
+          {allFriendsPaid && <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.75rem', textTransform: 'none' }}>🎉 Hoàn tất 100%</span>}
         </h3>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
@@ -386,31 +485,131 @@ export default function ReviewPage({
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)' }}>
                       Phần tiền: <strong style={{ color: 'var(--color-text-primary)' }}>{cost.toLocaleString()} đ</strong>
                     </div>
+                    {/* Selected items list */}
+                    <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '240px' }}>
+                      {getMemberSelectedItems(m.id).length > 0 ? (
+                        getMemberSelectedItems(m.id).map(item => {
+                          const selections = itemSelections[item.id] || [];
+                          const shareCount = selections.length;
+                          const myQty = selections.filter(id => id === m.id).length;
+                          return (
+                            <span 
+                              key={item.id} 
+                              style={{ 
+                                fontSize: '0.65rem', 
+                                background: 'rgba(216,45,139,0.04)', 
+                                color: 'var(--color-primary)', 
+                                padding: '2px 6px', 
+                                borderRadius: '4px',
+                                border: '1px solid rgba(216,45,139,0.08)',
+                                fontWeight: 500
+                              }}
+                            >
+                              {item.name} {myQty > 0 && `(x${myQty})`}{shareCount > 1 && ` [chia ${shareCount}]`}
+                            </span>
+                          );
+                        })
+                      ) : (
+                        <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                          Chưa chọn món nào
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Status Badges */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                  {billStatus === 'picking' ? (
-                    status === 'submitted' ? (
-                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', border: '1px solid rgba(16, 185, 129, 0.2)', fontSize: '0.65rem' }}>
-                        ✓ Đã gửi duyệt
+                  {m.id === 'host' ? (
+                    hasPaid ? (
+                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)', border: '1.5px solid var(--color-success)', fontSize: '0.65rem', fontWeight: 'bold' }}>
+                        👑 Host (Đã thanh toán)
                       </span>
                     ) : (
-                      <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.08)', color: 'var(--color-warning)', border: '1px solid rgba(245, 158, 11, 0.15)', fontSize: '0.65rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                        <span className="badge" style={{ background: 'rgba(216, 45, 139, 0.08)', color: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', fontSize: '0.65rem', fontWeight: 'bold' }}>
+                          👑 Host (Chờ thanh toán)
+                        </span>
+                        {billStatus === 'locked' && (
+                          <button 
+                            onClick={() => setShowHostPaymentSuccess(true)}
+                            style={{
+                              padding: '3px 8px',
+                              background: 'var(--color-success)',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '4px',
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              boxShadow: 'var(--shadow-sm)',
+                              marginTop: '2px'
+                            }}
+                          >
+                            Thanh toán phần mình
+                          </button>
+                        )}
+                      </div>
+                    )
+                  ) : hasPaid ? (
+                    <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)', border: '1.5px solid var(--color-success)', fontSize: '0.65rem', fontWeight: 'bold' }}>
+                      💸 Đã thanh toán
+                    </span>
+                  ) : billStatus === 'picking' ? (
+                    status === 'approved' ? (
+                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)', border: '1.5px solid var(--color-success)', fontSize: '0.65rem', fontWeight: 'bold' }}>
+                        ✓ Đã duyệt
+                      </span>
+                    ) : status === 'submitted' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                        <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.1)', color: 'var(--color-warning)', border: '1px solid rgba(245, 158, 11, 0.2)', fontSize: '0.65rem' }}>
+                          ⏳ Chờ duyệt
+                        </span>
+                        {m.id !== 'host' && (
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button 
+                              onClick={() => handleApproveMemberSelections(m.id)}
+                              style={{
+                                padding: '3px 8px',
+                                background: 'var(--color-success)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                fontSize: '0.65rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                boxShadow: 'var(--shadow-sm)'
+                              }}
+                            >
+                              Duyệt
+                            </button>
+                            <button 
+                              onClick={() => handleRejectMemberSelections(m.id)}
+                              style={{
+                                padding: '3px 8px',
+                                background: 'rgba(239, 68, 68, 0.05)',
+                                color: 'var(--color-danger)',
+                                border: '1px solid rgba(239, 68, 68, 0.15)',
+                                borderRadius: '4px',
+                                fontSize: '0.65rem',
+                                fontWeight: 600,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Trả lại
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="badge" style={{ background: 'rgba(0,0,0,0.04)', color: 'var(--color-text-muted)', border: '1px solid rgba(0,0,0,0.06)', fontSize: '0.65rem' }}>
                         ⏳ Đang chọn
                       </span>
                     )
                   ) : (
-                    hasPaid ? (
-                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)', border: '1.5px solid var(--color-success)', fontSize: '0.65rem', fontWeight: 'bold' }}>
-                        💸 Đã thanh toán
-                      </span>
-                    ) : (
-                      <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.08)', color: 'var(--color-danger)', border: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '0.65rem' }}>
-                        💵 Chờ thanh toán
-                      </span>
-                    )
+                    <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.08)', color: 'var(--color-danger)', border: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '0.65rem' }}>
+                      💵 Chờ thanh toán
+                    </span>
                   )}
                 </div>
               </div>
@@ -777,6 +976,19 @@ export default function ReviewPage({
             </div>
           </div>
         </div>
+      )}
+      {showHostPaymentSuccess && (
+        <PaymentModal 
+          amount={calculateMemberCost('host')} 
+          memberName="Hoàng Anh (Host)"
+          onClose={() => {
+            setShowHostPaymentSuccess(false);
+            setMemberPayments(prev => ({
+              ...prev,
+              host: true
+            }));
+          }} 
+        />
       )}
     </div>
   );
