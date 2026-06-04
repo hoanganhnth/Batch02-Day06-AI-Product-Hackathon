@@ -71,6 +71,21 @@ export default function ReviewPage({
     }
   };
 
+  const handleShareClick = () => {
+    if (members.length <= 1) {
+      setConfirmModal({
+        show: true,
+        title: 'Chưa có thành viên',
+        message: 'Bạn chưa thêm thành viên nào vào phòng chia tiền. Vui lòng thêm bạn bè để cùng chia hóa đơn.',
+        showCancel: false,
+        confirmLabel: 'Đóng',
+        onConfirm: () => setConfirmModal(prev => ({ ...prev, show: false }))
+      });
+      return;
+    }
+    setShowShareModal(true);
+  };
+
   const handleConfirmLock = () => {
     setBillStatus('locked');
     if (billId) lockBill(billId, true).catch(console.error);
@@ -1011,7 +1026,7 @@ export default function ReviewPage({
               🙋 Tự chọn món
             </button>
           )}
-          <button onClick={() => setShowShareModal(true)} className="btn btn-primary" style={{ flex: 2, border: 'none', boxShadow: 'none' }}>
+          <button onClick={handleShareClick} className="btn btn-primary" style={{ flex: 2, border: 'none', boxShadow: 'none' }}>
             🔗 Gửi nhóm chọn món
           </button>
         </div>

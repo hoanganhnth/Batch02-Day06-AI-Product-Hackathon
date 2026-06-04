@@ -52,6 +52,6 @@ class OpenAIProvider(VisionProvider):
                     ]
                 }
             ],
-            max_tokens=4096
+            max_completion_tokens=4096
         )
         return response.choices[0].message.content.strip()
