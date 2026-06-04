@@ -17,7 +17,7 @@
     6. Đóng vai Bạn bè (mở 2-3 tab ẩn danh hoặc điện thoại khác): Bấm vào link, tự chọn món mình đã ăn (ví dụ: Bạn A chọn "Trà đào", Bạn B chọn "Cơm tấm").
     7. Quay lại màn hình Host: Nhìn thấy danh sách cập nhật realtime (A ăn gì, B ăn gì) và tổng tiền mỗi người phải trả đã gồm thuế phí.
     8. Host bấm **Yêu cầu thanh toán**.
-* **Lời bình của MC:** "Thay vì Host phải tự hỏi ai ăn gì, AI đã bóc tách hóa đơn trong 3 giây. Sau đó, mỗi người tự vào link tick món của mình. Tính minh bạch tuyệt đối, không ai phải chịu cảnh 'bị đòi nợ', và hệ thống tự động chia thuế phí công bằng."
+ "Thay vì Host phải tự hỏi ai ăn gì, AI đã bóc tách hóa đơn trong 3 giây. Sau đó, mỗi người tự vào link tick món của mình. Tính minh bạch tuyệt đối, không ai phải chịu cảnh 'bị đòi nợ', và hệ thống tự động chia thuế phí công bằng."
 
 ## 3. Kịch bản 2: Low-Confidence Path (AI hỏi lại user) - 45s
 * **Thao tác trên màn hình:**
