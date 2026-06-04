@@ -63,6 +63,12 @@ body {
   overflow-x: hidden;
 }
 
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 /* Glassmorphism Wrapper for Mobile Frame Simulator */
 .phone-container {
   width: 100%;

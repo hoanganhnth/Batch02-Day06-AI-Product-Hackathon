@@ -753,6 +753,8 @@ export default function PickItemsPage({
         <PaymentModal 
           amount={myTotalCost} 
           memberName={activeMember?.name}
+          hostName={members.find(m => m.id === 'host')?.name || "Tôi (Host)"}
+          restaurant={restaurant}
           onClose={() => {
             setShowPaymentSuccess(false);
             setMemberPayments(prev => ({ ...prev, [activeMemberId]: true }));

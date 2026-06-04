@@ -976,6 +976,8 @@ export default function ReviewPage({
         <PaymentModal 
           amount={calculateMemberCost('host')} 
           memberName={members.find(m => m.id === 'host')?.name || "Tôi (Host)"}
+          hostName={members.find(m => m.id === 'host')?.name || "Tôi (Host)"}
+          restaurant={restaurant}
           onClose={() => {
             setShowHostPaymentSuccess(false);
             setMemberPayments(prev => ({ ...prev, host: true }));
