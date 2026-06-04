@@ -52,6 +52,17 @@ export default function ReviewPage({
   };
 
   const handleLockClick = () => {
+    if (members.length <= 1) {
+      setConfirmModal({
+        show: true,
+        title: 'Chưa có thành viên',
+        message: 'Bạn chưa thêm thành viên nào vào phòng chia tiền. Vui lòng thêm bạn bè để cùng chia hóa đơn.',
+        showCancel: false,
+        confirmLabel: 'Đóng',
+        onConfirm: () => setConfirmModal(prev => ({ ...prev, show: false }))
+      });
+      return;
+    }
     const invalid = getInvalidSelectionItems();
     if (invalid.length > 0) {
       setShowLockWarningModal(true);
@@ -665,7 +676,7 @@ export default function ReviewPage({
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                         <span className="badge" style={{ background: 'rgba(216, 45, 139, 0.08)', color: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', fontSize: '0.65rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                          Host ({billStatus === 'locked' ? 'Chờ thanh toán' : 'Đang chọn món'})
+                          {billStatus === 'locked' ? 'Host (Chờ thanh toán)' : 'Host'}
                         </span>
                         {billStatus === 'picking' && (
                           <button 
@@ -1026,13 +1037,15 @@ export default function ReviewPage({
               {confirmModal.message}
             </p>
             <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-              <button 
-                onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))} 
-                className="btn btn-secondary"
-                style={{ flex: 1, padding: '10px', fontSize: '0.82rem' }}
-              >
-                Hủy
-              </button>
+              {confirmModal.showCancel !== false && (
+                <button 
+                  onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))} 
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '10px', fontSize: '0.82rem' }}
+                >
+                  Hủy
+                </button>
+              )}
               <button 
                 onClick={confirmModal.onConfirm} 
                 className="btn btn-primary"
@@ -1045,7 +1058,7 @@ export default function ReviewPage({
                   color: 'white' 
                 }}
               >
-                Xác nhận
+                {confirmModal.confirmLabel || 'Xác nhận'}
               </button>
             </div>
           </div>
@@ -1073,13 +1086,7 @@ export default function ReviewPage({
             </button>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
-              <button onClick={() => {
-                setShowShareModal(false);
-                onNext();
-              }} className="btn btn-primary" style={{ border: 'none', boxShadow: 'none' }}>
-                ➡️ Vào màn hình Chọn món (Bạn bè)
-              </button>
-              <button onClick={() => setShowShareModal(false)} className="btn btn-secondary">
+              <button onClick={() => setShowShareModal(false)} className="btn btn-primary" style={{ border: 'none', boxShadow: 'none', background: 'var(--gradient-momo)', color: 'white' }}>
                 Đóng
               </button>
             </div>
@@ -1110,29 +1117,59 @@ export default function ReviewPage({
             </h3>
             
             <p className="subtitle" style={{ fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
-              Phát hiện các món ăn có số lượng người chọn chưa khớp (thiếu hoặc thừa) so với hóa đơn gốc:
+              Phát hiện các món ăn có số lượng người chọn chưa đủ so với hóa đơn gốc:
             </p>
 
             {/* List of invalid items */}
             <div style={{ 
               width: '100%', 
-              maxHeight: '120px', 
+              maxHeight: '180px', 
               overflowY: 'auto', 
               background: '#f8fafc', 
-              padding: '10px 14px', 
+              padding: '12px', 
               borderRadius: '8px', 
               border: '1px solid rgba(0,0,0,0.06)',
               marginBottom: '20px',
               textAlign: 'left',
-              fontSize: '0.78rem'
+              fontSize: '0.78rem',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '8px'
             }}>
               {getInvalidSelectionItems().map(item => {
                 const selections = itemSelections[item.id] || [];
                 const selectedQty = selections.length;
                 return (
-                  <div key={item.id} style={{ color: 'var(--color-text-primary)', padding: '4px 0', borderBottom: '1px dashed rgba(0,0,0,0.04)', fontWeight: 500, display: 'flex', justifyContent: 'space-between' }}>
-                    <span>• {item.name}</span>
-                    <span style={{ color: 'var(--color-warning)', fontWeight: 700 }}>Đã chọn: {selectedQty}/{item.qty} (Chưa đủ)</span>
+                  <div 
+                    key={item.id} 
+                    style={{ 
+                      color: 'var(--color-text-primary)', 
+                      padding: '6px 8px', 
+                      background: 'rgba(239, 68, 68, 0.03)',
+                      border: '1px solid rgba(239, 68, 68, 0.08)',
+                      borderRadius: '6px',
+                      fontWeight: 500,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '2px',
+                      minWidth: 0
+                    }}
+                  >
+                    <span 
+                      style={{ 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis', 
+                        whiteSpace: 'nowrap', 
+                        fontWeight: 600,
+                        fontSize: '0.75rem' 
+                      }}
+                      title={item.name}
+                    >
+                      • {item.name}
+                    </span>
+                    <span style={{ color: 'var(--color-danger)', fontWeight: 700, fontSize: '0.68rem' }}>
+                      Đã chọn: {selectedQty}/{item.qty}
+                    </span>
                   </div>
                 );
               })}
