@@ -28,6 +28,28 @@ export default function ReviewPage({
   // Member management states
   const [newMemberInput, setNewMemberInput] = useState('');
   const [isLinkCopied, setIsLinkCopied] = useState(false);
+  const [showLockWarningModal, setShowLockWarningModal] = useState(false);
+
+  const getUnselectedItems = () => {
+    return billItems.filter(item => {
+      const selections = itemSelections[item.id] || [];
+      return selections.length === 0;
+    });
+  };
+
+  const handleLockClick = () => {
+    const unselected = getUnselectedItems();
+    if (unselected.length > 0) {
+      setShowLockWarningModal(true);
+    } else {
+      setBillStatus('locked');
+    }
+  };
+
+  const handleConfirmLock = () => {
+    setBillStatus('locked');
+    setShowLockWarningModal(false);
+  };
 
   // Edit item quantity
   const handleQtyChange = (id, newQty) => {
@@ -373,7 +395,7 @@ export default function ReviewPage({
         {/* Lock / Unlock Button for Admin */}
         {billStatus === 'picking' ? (
           <button 
-            onClick={() => setBillStatus('locked')}
+            onClick={handleLockClick}
             className="btn btn-primary"
             style={{ 
               width: '100%', 
@@ -559,6 +581,95 @@ export default function ReviewPage({
               </button>
               <button onClick={() => setShowShareModal(false)} className="btn btn-secondary">
                 Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLockWarningModal && (
+        <div className="modal-overlay" onClick={() => setShowLockWarningModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ borderTop: '5px solid var(--color-danger)' }}>
+            <div style={{ 
+              width: '56px', 
+              height: '56px', 
+              borderRadius: '50%', 
+              background: 'rgba(239, 68, 68, 0.1)', 
+              color: 'var(--color-danger)',
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: '1.8rem', 
+              marginBottom: '16px' 
+            }}>
+              ⚠️
+            </div>
+
+            <h3 className="title-lg" style={{ fontSize: '1.2rem', marginBottom: '8px', color: 'var(--color-danger)', fontWeight: 800 }}>
+              Món chưa được chọn!
+            </h3>
+            
+            <p className="subtitle" style={{ fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+              Phát hiện <strong style={{ color: 'var(--color-danger)' }}>{getUnselectedItems().length} món ăn</strong> chưa có ai chọn:
+            </p>
+
+            {/* List of unselected items */}
+            <div style={{ 
+              width: '100%', 
+              maxHeight: '120px', 
+              overflowY: 'auto', 
+              background: '#f8fafc', 
+              padding: '10px 14px', 
+              borderRadius: '8px', 
+              border: '1px solid rgba(0,0,0,0.06)',
+              marginBottom: '20px',
+              textAlign: 'left',
+              fontSize: '0.78rem'
+            }}>
+              {getUnselectedItems().map(item => (
+                <div key={item.id} style={{ color: 'var(--color-text-primary)', padding: '4px 0', borderBottom: '1px dashed rgba(0,0,0,0.04)', fontWeight: 500 }}>
+                  • {item.name} ({item.qty} x {item.price.toLocaleString()}đ)
+                </div>
+              ))}
+            </div>
+
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '20px', textAlign: 'center' }}>
+              Nếu vẫn khóa, tiền các món này sẽ không phân bổ cho ai. Bạn có chắc chắn muốn khóa hóa đơn không?
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+              <button 
+                onClick={handleConfirmLock}
+                className="btn"
+                style={{ 
+                  background: 'var(--gradient-momo)', 
+                  color: 'white', 
+                  fontSize: '0.85rem',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                🔒 Vẫn khóa hóa đơn
+              </button>
+              
+              <button 
+                onClick={() => setShowLockWarningModal(false)}
+                className="btn btn-secondary"
+                style={{ 
+                  padding: '10px', 
+                  fontSize: '0.85rem',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(0,0,0,0.08)',
+                  background: '#f1f5f9',
+                  color: 'var(--color-text-primary)',
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                Quay lại kiểm tra
               </button>
             </div>
           </div>
