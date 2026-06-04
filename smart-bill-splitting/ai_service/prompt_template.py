@@ -25,6 +25,7 @@ Nhiệm vụ: Nhận ảnh chụp hóa đơn (bill) và trả về JSON chính x
 
 3. **Đơn vị tiền:** Luôn là VNĐ, số nguyên (không có dấu chấm/phẩy thập phân).
    Ví dụ: 150000 (đúng), 150.000 (sai), 1500000 (kiểm tra kỹ).
+   Lưu ý: Nếu hóa đơn viết tắt đơn giá (VD: 4400 nhưng thành tiền là 22.000.000 với SL=5), phải tự nội suy `unit_price = total_price / quantity` = 4400000.
 
 4. **Confidence score:**
    - 1.0: Đọc rõ ràng, chắc chắn 100%.
@@ -44,8 +45,8 @@ Nhiệm vụ: Nhận ảnh chụp hóa đơn (bill) và trả về JSON chính x
    Nếu tổng tính toán (sub_total + vat + service) khác grand_total
    trên bill → ưu tiên số trên bill, ghi note cảnh báo.
 
-8. **Xử lý hóa đơn viết tay / Món bị gộp:**
-   - Nếu bill gộp nhiều món vào 1 dòng (VD: "3 Khoai tây + 3 Trứng = 360000"), hãy để `unit_price = null`, `quantity = null`, và điền tổng vào `total_price`. Ghi chú rõ vào trường "note".
+8. **Xử lý hóa đơn viết tay / Món bị gộp (Mixed Items):**
+   - Nếu bill viết tay gộp nhiều món vào 1 dòng và chỉ ghi 1 tổng tiền (VD: "3 Khoai tây + 3 Trứng = 360000"), hãy để `unit_price = null`, `quantity = null`, và điền tổng số tiền đó vào `total_price`. Ghi chú rõ vào trường "note".
 
 9. **CHIẾN LƯỢC ĐỌC BẢNG NHIỀU CỘT (CỰC KỲ QUAN TRỌNG):**
 
@@ -53,17 +54,13 @@ Nhiệm vụ: Nhận ảnh chụp hóa đơn (bill) và trả về JSON chính x
    `STT | Tên món | SL | Đ.Giá | T.Tiền`
 
    Bước đọc bắt buộc:
-   a) **Đọc CỘT CUỐI CÙNG trước (Thành Tiền / T.Tiền)** — đây là cột số lớn nhất,
-      dễ đọc nhất, nằm sát mép phải. Gán giá trị này vào `total_price`.
-   b) **Đọc cột SL (Số lượng)** — thường là số nhỏ (1, 2, 3, 5...).
-      Cẩn thận KHÔNG nhầm STT (Số Thứ Tự) ở đầu dòng thành SL.
+   a) **Đọc CỘT CUỐI CÙNG trước (Thành Tiền / T.Tiền)** — đây là cột số lớn nhất, dễ đọc nhất, nằm sát mép phải. Gán giá trị này vào `total_price`.
+   b) **Đọc cột SL (Số lượng)** — Cẩn thận KHÔNG nhầm STT ở đầu dòng thành SL.
    c) **Tính ngược `unit_price`** = `total_price` / `quantity`.
-      So sánh kết quả tính ngược với số đọc được ở cột Đ.Giá.
-      Nếu khớp → chắc chắn đúng. Nếu lệch → đọc lại cẩn thận.
-   d) **Tên món dài bị rớt xuống dòng:** VD: "Nấm đông cô nhân" ở dòng trên,
-      "thịt" ở dòng dưới → ghép lại thành "Nấm đông cô nhân thịt".
-      SL và Đ.Giá luôn nằm trên CÙNG HÀNG với dòng cuối cùng của tên món.
-      KHÔNG BAO GIỜ lấy số liệu của dòng bên dưới đắp lên dòng trên.
+      So sánh kết quả tính ngược với số đọc được ở cột Đ.Giá. Nếu lệch → đọc lại cẩn thận.
+      **(Lưu ý: Một số bill viết tắt đơn giá, VD ghi "4400" nhưng thành tiền "22.000.000" cho SL 5. Trong trường hợp này, LUÔN tin tưởng kết quả tính ngược từ Thành Tiền).**
+      Nếu bill KHÔNG CÓ cột Đơn giá, vẫn sử dụng kết quả tính ngược này.
+   d) **Tên món dài bị rớt xuống dòng:** ghép lại thành 1 dòng. SL và Đ.Giá luôn nằm trên CÙNG HÀNG với dòng cuối cùng của tên món.
 
 10. **CROSS-VALIDATION BẮT BUỘC (Tự kiểm tra trước khi trả kết quả):**
     Sau khi đọc xong tất cả items, thực hiện 2 phép kiểm tra:
@@ -76,8 +73,7 @@ Nhiệm vụ: Nhận ảnh chụp hóa đơn (bill) và trả về JSON chính x
 11. **Giấy nhiệt (thermal paper) — Cẩn thận nhầm số:**
     Bill in trên giấy nhiệt rất dễ nhòe. Các cặp số hay bị nhầm:
     - 6 ↔ 8, 0 ↔ 9, 5 ↔ 3, 1 ↔ 7
-    Nếu đọc xong mà cross-validation (rule 10) bị lỗi, hãy nghi ngờ
-    các chữ số này trước và thử đọc lại.
+    Nếu đọc xong mà cross-validation bị lỗi, hãy nghi ngờ các chữ số này trước và thử đọc lại.
 
 ## JSON SCHEMA:
 
