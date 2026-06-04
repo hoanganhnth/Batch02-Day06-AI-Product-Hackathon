@@ -291,8 +291,16 @@ export default function PickItemsPage({
       sumRounded += costs[m.id].total;
     });
     
-    // Adjust rounding difference on Host (or first member)
-    const diff = grandTotal - sumRounded;
+    // Adjust rounding difference on Host (or first member) based on selected items only
+    let selectedItemsTotal = 0;
+    billItems.forEach(item => {
+      const selections = itemSelections[item.id] || [];
+      if (selections.length > 0) {
+        selectedItemsTotal += item.price * item.qty;
+      }
+    });
+    const expectedTotal = selectedItemsTotal + totalSharedFees;
+    const diff = expectedTotal - sumRounded;
     if (diff !== 0 && members.length > 0) {
       const hostMember = members.find(m => m.id === 'host') || members[0];
       if (costs[hostMember.id]) {
@@ -612,7 +620,7 @@ export default function PickItemsPage({
                           key={memberId} 
                           className={`selection-dot ${isMe ? 'mine' : ''}`}
                         >
-                          {member ? member.name.split(' ')[0] : memberId} {qty > 1 && `(x${qty})`}
+                          {memberId === 'host' ? (isMe ? 'Tôi' : 'Host') : (member ? member.name.split(' ')[0] : memberId)} {qty > 1 && `(x${qty})`}
                         </span>
                       );
                     })}
@@ -659,9 +667,14 @@ export default function PickItemsPage({
           <span style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{Math.round(myFeeShare).toLocaleString()} đ</span>
         </div>
         <div className="summary-row total-row">
-          <span>Tổng tiền cần trả:</span>
+          <span>{billStatus === 'picking' ? "Tạm tính (Tối đa):" : "Tổng tiền cần trả:"}</span>
           <span className="price-val">{myTotalCost.toLocaleString()} đ</span>
         </div>
+        {billStatus === 'picking' && (
+          <div style={{ fontSize: '0.68rem', color: 'var(--color-text-secondary)', textAlign: 'right', marginTop: '2px', marginBottom: '4px', fontStyle: 'italic', lineHeight: '1.3' }}>
+            * Số tiền này sẽ giảm đi khi có thêm bạn bè chọn chung món với bạn.
+          </div>
+        )}
         
         <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
           {activeMemberId === 'host' ? (
