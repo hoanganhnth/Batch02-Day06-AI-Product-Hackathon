@@ -1,6 +1,126 @@
 import React, { useState } from 'react';
 import PaymentModal from '../components/PaymentModal';
 
+// Helper component for the Edit Request form
+function EditRequestForm({ item, activeMember, onClose, onSubmit }) {
+  const [name, setName] = useState(item.name);
+  const [price, setPrice] = useState(item.price);
+  const [qty, setQty] = useState(item.qty);
+  const [reason, setReason] = useState('');
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(name, price, qty, reason);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <form 
+        className="modal-content" 
+        onClick={(e) => e.stopPropagation()} 
+        onSubmit={handleFormSubmit}
+        style={{ 
+          borderTop: '5px solid var(--color-primary)', 
+          borderRadius: '20px',
+          padding: '20px',
+          textAlign: 'left',
+          width: '90%',
+          maxWidth: '380px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 className="title-lg" style={{ fontSize: '1.2rem', margin: 0, fontWeight: 700 }}>
+            Yêu cầu sửa món ăn
+          </h3>
+          <button 
+            type="button"
+            onClick={onClose} 
+            style={{ 
+              background: 'rgba(0,0,0,0.05)', 
+              border: 'none', 
+              color: 'var(--color-text-primary)', 
+              borderRadius: '50%', 
+              width: '28px', 
+              height: '28px', 
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <p className="subtitle" style={{ fontSize: '0.78rem', marginBottom: '16px', color: 'var(--color-text-secondary)', lineHeight: '1.4' }}>
+          Bạn đang gửi yêu cầu sửa món cho Host (Hoàng Anh). Nhập các thông tin cần thay đổi:
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={{ fontSize: '0.78rem', fontWeight: 600 }}>Tên món ăn:</label>
+            <input 
+              type="text" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              className="price-input" 
+              style={{ width: '100%', textAlign: 'left', background: '#f1f5f9', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '10px' }}
+              required
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600 }}>Đơn giá (đ):</label>
+              <input 
+                type="number" 
+                value={price} 
+                onChange={(e) => setPrice(e.target.value)} 
+                className="price-input" 
+                style={{ width: '100%', textAlign: 'left', background: '#f1f5f9', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '10px' }}
+                required
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '80px' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600 }}>Số lượng:</label>
+              <input 
+                type="number" 
+                value={qty} 
+                onChange={(e) => setQty(e.target.value)} 
+                className="price-input" 
+                style={{ width: '100%', textAlign: 'center', background: '#f1f5f9', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '10px' }}
+                required
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={{ fontSize: '0.78rem', fontWeight: 600 }}>Lý do sửa đổi:</label>
+            <input 
+              type="text" 
+              placeholder="Ví dụ: Menu ghi giá 59k, AI đọc sai..." 
+              value={reason} 
+              onChange={(e) => setReason(e.target.value)} 
+              className="price-input" 
+              style={{ width: '100%', textAlign: 'left', background: '#f1f5f9', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '10px' }}
+            />
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          className="btn btn-primary"
+          style={{ width: '100%', border: 'none', boxShadow: 'none' }}
+        >
+          📤 Gửi yêu cầu sửa
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function PickItemsPage({
   restaurant,
   billItems,
@@ -15,6 +135,8 @@ export default function PickItemsPage({
   setMemberStatuses,
   memberPayments,
   setMemberPayments,
+  editRequests,
+  setEditRequests,
   onBack
 }) {
   const [userIdentified, setUserIdentified] = useState(false);
@@ -22,6 +144,9 @@ export default function PickItemsPage({
   const [activeMemberId, setActiveMemberId] = useState('');
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [lastPaymentAmount, setLastPaymentAmount] = useState(0);
+  
+  // State for item currently requested to be edited
+  const [requestEditItem, setRequestEditItem] = useState(null);
 
   const handleJoinWithNewName = () => {
     if (!newMemberName.trim()) return;
@@ -311,26 +436,31 @@ export default function PickItemsPage({
           Danh sách món ăn của bàn:
         </h3>
 
-        <div className="bill-list" style={{ opacity: (billStatus === 'locked' || myStatus === 'submitted') ? 0.85 : 1 }}>
+        <div className="bill-list">
           {billItems.map(item => {
             const selections = itemSelections[item.id] || [];
             const isCheckedByMe = selections.includes(activeMemberId);
             const totalItemAmount = item.price * item.qty;
             const splitCount = selections.length;
 
+            // Check if there is an active/pending edit request for this item from this user
+            const myEditReq = editRequests && editRequests.find(r => r.itemId === item.id && r.memberName === activeMember?.name && r.status === 'pending');
+            const approvedReq = editRequests && editRequests.find(r => r.itemId === item.id && r.memberName === activeMember?.name && r.status === 'approved');
+            const rejectedReq = editRequests && editRequests.find(r => r.itemId === item.id && r.memberName === activeMember?.name && r.status === 'rejected');
+
             return (
               <div 
                 key={item.id} 
-                onClick={() => handleToggleItem(item.id)}
                 className="bill-item-card" 
                 style={{ 
-                  cursor: (billStatus === 'locked' || myStatus === 'submitted') ? 'not-allowed' : 'pointer',
                   borderLeft: isCheckedByMe ? '4px solid var(--color-success)' : '1px solid rgba(0,0,0,0.04)',
-                  background: isCheckedByMe ? 'rgba(16, 185, 129, 0.04)' : 'rgba(0,0,0,0.01)',
-                  pointerEvents: (billStatus === 'locked' || myStatus === 'submitted') ? 'none' : 'auto'
+                  background: isCheckedByMe ? 'rgba(16, 185, 129, 0.04)' : 'rgba(0,0,0,0.01)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div 
+                  onClick={() => handleToggleItem(item.id)}
+                  style={{ display: 'flex', alignItems: 'center', cursor: (billStatus === 'locked' || myStatus === 'submitted') ? 'not-allowed' : 'pointer' }}
+                >
                   {/* Custom Checkbox */}
                   <div className={`item-checkbox ${isCheckedByMe ? 'checked' : ''}`}>
                     {isCheckedByMe && (
@@ -379,6 +509,63 @@ export default function PickItemsPage({
                     })}
                   </div>
                 )}
+
+                {/* Edit Request Section */}
+                <div 
+                  style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    marginTop: '8px', 
+                    paddingTop: '8px', 
+                    borderTop: '1px dashed rgba(0,0,0,0.05)'
+                  }}
+                >
+                  {/* Status labels */}
+                  <div>
+                    {myEditReq && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-warning)', fontWeight: 600 }}>
+                        ⏳ Chờ Host duyệt sửa...
+                      </span>
+                    )}
+                    {approvedReq && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-success)', fontWeight: 600 }}>
+                        ✓ Host đã duyệt sửa
+                      </span>
+                    )}
+                    {rejectedReq && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-danger)', fontWeight: 600 }}>
+                        ✕ Yêu cầu sửa bị từ chối
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Request edit button */}
+                  {billStatus === 'picking' && myStatus !== 'submitted' && !myEditReq && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRequestEditItem(item);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--color-primary)',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '2px',
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        background: 'rgba(216,45,139,0.05)'
+                      }}
+                    >
+                      ✏️ Yêu cầu sửa
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -481,6 +668,36 @@ export default function PickItemsPage({
               [activeMemberId]: true
             }));
           }} 
+        />
+      )}
+
+      {/* Edit Request Modal */}
+      {requestEditItem && (
+        <EditRequestForm 
+          item={requestEditItem}
+          activeMember={activeMember}
+          onClose={() => setRequestEditItem(null)}
+          onSubmit={(newName, newPrice, newQty, reason) => {
+            const req = {
+              id: 'req_' + Date.now(),
+              itemId: requestEditItem.id,
+              memberName: activeMember.name,
+              oldVal: {
+                name: requestEditItem.name,
+                price: requestEditItem.price,
+                qty: requestEditItem.qty
+              },
+              newVal: {
+                name: newName,
+                price: parseInt(newPrice) || 0,
+                qty: parseInt(newQty) || 0
+              },
+              reason: reason,
+              status: 'pending'
+            };
+            setEditRequests(prev => [...prev, req]);
+            setRequestEditItem(null);
+          }}
         />
       )}
     </div>

@@ -53,6 +53,9 @@ export default function App() {
   const [billStatus, setBillStatus] = useState(() => loadStoredString('momo_split_billStatus', 'picking')); // 'picking', 'locked'
   const [memberStatuses, setMemberStatuses] = useState(() => loadStored('momo_split_memberStatuses', {})); // { memberId: 'picking' | 'submitted' }
   const [memberPayments, setMemberPayments] = useState(() => loadStored('momo_split_memberPayments', {})); // { memberId: boolean }
+  
+  // Edit requests from friends to Host
+  const [editRequests, setEditRequests] = useState(() => loadStored('momo_split_editRequests', []));
 
   // Save to localStorage when state changes
   useEffect(() => {
@@ -91,6 +94,10 @@ export default function App() {
     localStorage.setItem('momo_split_memberPayments', JSON.stringify(memberPayments));
   }, [memberPayments]);
 
+  useEffect(() => {
+    localStorage.setItem('momo_split_editRequests', JSON.stringify(editRequests));
+  }, [editRequests]);
+
   // Synchronize state in real-time when updated in another tab
   useEffect(() => {
     const handleStorageChange = (e) => {
@@ -114,6 +121,8 @@ export default function App() {
           setMemberStatuses(JSON.parse(e.newValue));
         } else if (e.key === 'momo_split_memberPayments') {
           setMemberPayments(JSON.parse(e.newValue));
+        } else if (e.key === 'momo_split_editRequests') {
+          setEditRequests(JSON.parse(e.newValue));
         }
       } catch (err) {
         console.error("Error parsing storage change", err);
@@ -145,6 +154,7 @@ export default function App() {
     localStorage.removeItem('momo_split_billStatus');
     localStorage.removeItem('momo_split_memberStatuses');
     localStorage.removeItem('momo_split_memberPayments');
+    localStorage.removeItem('momo_split_editRequests');
 
     setReceiptImage('');
     setRestaurant(mockBillResult.restaurant);
@@ -168,6 +178,7 @@ export default function App() {
     setBillStatus('picking');
     setMemberStatuses({});
     setMemberPayments({});
+    setEditRequests([]);
 
     // Clear URL page param
     window.history.pushState({}, '', window.location.pathname);
@@ -228,6 +239,8 @@ export default function App() {
           memberStatuses={memberStatuses}
           setMemberStatuses={setMemberStatuses}
           memberPayments={memberPayments}
+          editRequests={editRequests}
+          setEditRequests={setEditRequests}
           onNext={() => {
             window.history.pushState({}, '', '?page=pick');
             setCurrentPage('pick');
@@ -254,6 +267,8 @@ export default function App() {
           setMemberStatuses={setMemberStatuses}
           memberPayments={memberPayments}
           setMemberPayments={setMemberPayments}
+          editRequests={editRequests}
+          setEditRequests={setEditRequests}
           onBack={() => {
             window.history.pushState({}, '', '?page=review');
             setCurrentPage('review');

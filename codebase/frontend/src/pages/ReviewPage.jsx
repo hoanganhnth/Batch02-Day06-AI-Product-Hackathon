@@ -18,6 +18,8 @@ export default function ReviewPage({
   memberStatuses,
   setMemberStatuses,
   memberPayments,
+  editRequests,
+  setEditRequests,
   onNext,
   onBack
 }) {
@@ -131,6 +133,30 @@ export default function ReviewPage({
       delete updated[id];
       return updated;
     });
+  };
+
+  // Handle Edit Requests from Friends
+  const handleApproveEdit = (req) => {
+    // 1. Update the actual item in billItems
+    setBillItems(prev => prev.map(item => {
+      if (item.id === req.itemId) {
+        return {
+          ...item,
+          name: req.newVal.name,
+          price: req.newVal.price,
+          qty: req.newVal.qty
+        };
+      }
+      return item;
+    }));
+
+    // 2. Mark edit request as approved
+    setEditRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'approved' } : r));
+  };
+
+  const handleRejectEdit = (reqId) => {
+    // Mark edit request as rejected
+    setEditRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: 'rejected' } : r));
   };
 
   // Calculate sum of food items
@@ -434,6 +460,83 @@ export default function ReviewPage({
           </div>
         )}
       </div>
+
+      {/* 4.7. Friend Edit Requests Monitoring (Duyệt yêu cầu sửa món) */}
+      {editRequests && editRequests.some(r => r.status === 'pending') && (
+        <div className="glass-card" style={{ marginTop: '10px', borderTop: '4px solid var(--color-primary)' }}>
+          <h3 style={{ fontSize: '0.82rem', color: 'var(--color-primary)', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            🔔 Yêu cầu sửa món từ bạn bè ({editRequests.filter(r => r.status === 'pending').length})
+          </h3>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {editRequests.filter(r => r.status === 'pending').map(req => {
+              const item = billItems.find(i => i.id === req.itemId) || {};
+              const nameChanged = req.newVal.name !== req.oldVal.name;
+              const priceChanged = req.newVal.price !== req.oldVal.price;
+              const qtyChanged = req.newVal.qty !== req.oldVal.qty;
+
+              return (
+                <div 
+                  key={req.id} 
+                  style={{ 
+                    padding: '12px', 
+                    background: 'rgba(216,45,139,0.02)', 
+                    border: '1px solid rgba(216,45,139,0.1)', 
+                    borderRadius: '10px',
+                    fontSize: '0.8rem',
+                    textAlign: 'left'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{req.memberName}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)' }}>Món gốc: {req.oldVal.name}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px' }}>
+                    {nameChanged && (
+                      <div>
+                        • Đổi tên: <del style={{ color: 'var(--color-text-secondary)' }}>{req.oldVal.name}</del> → <strong style={{ color: 'var(--color-text-primary)' }}>{req.newVal.name}</strong>
+                      </div>
+                    )}
+                    {priceChanged && (
+                      <div>
+                        • Đổi giá: <del style={{ color: 'var(--color-text-secondary)' }}>{req.oldVal.price.toLocaleString()}đ</del> → <strong style={{ color: 'var(--color-primary)' }}>{req.newVal.price.toLocaleString()}đ</strong>
+                      </div>
+                    )}
+                    {qtyChanged && (
+                      <div>
+                        • Đổi SL: <del style={{ color: 'var(--color-text-secondary)' }}>{req.oldVal.qty}</del> → <strong style={{ color: 'var(--color-text-primary)' }}>{req.newVal.qty}</strong>
+                      </div>
+                    )}
+                    {req.reason && (
+                      <div style={{ fontStyle: 'italic', color: 'var(--color-text-secondary)', marginTop: '4px', background: 'rgba(0,0,0,0.02)', padding: '6px', borderRadius: '4px', borderLeft: '2px solid rgba(0,0,0,0.1)' }}>
+                        "Lý do: {req.reason}"
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => handleApproveEdit(req)}
+                      className="btn btn-success"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px', width: 'auto', flex: 1, border: 'none', boxShadow: 'none' }}
+                    >
+                      ✓ Duyệt sửa
+                    </button>
+                    <button 
+                      onClick={() => handleRejectEdit(req.id)}
+                      className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px', width: 'auto', flex: 1, borderColor: 'rgba(0,0,0,0.08)', background: '#f1f5f9' }}
+                    >
+                      ✕ Từ chối
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 5. Members Management Section (Admin/Host adds members first) */}
       <div className="glass-card" style={{ marginTop: '10px' }}>
