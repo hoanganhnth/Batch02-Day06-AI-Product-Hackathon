@@ -777,7 +777,7 @@ let current = 0;
 // Fullscreen & Scaling
 function resizeDeck() {
   const slides = document.querySelectorAll('.slide-inner');
-  const scale = Math.min(window.innerWidth / 1600, window.innerHeight / 900) * 0.98; // 0.98 to avoid scrollbars
+  const scale = Math.min(window.innerWidth / 2133, window.innerHeight / 1200) * 0.98; // 0.98 to avoid scrollbars
   slides.forEach(s => {
     s.style.transform = `scale(${scale})`;
     s.style.transformOrigin = 'center center';
