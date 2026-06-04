@@ -1,0 +1,130 @@
+{
+  "restaurant_name": "CÔNG TY TNHH",
+  "items": [
+    {
+      "name": "Cá song hấp xì dầu",
+      "unit_price": 1150000,
+      "quantity": 3.1,
+      "total_price": 3565000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg"
+    },
+    {
+      "name": "Rượu táo mèo",
+      "unit_price": 150000,
+      "quantity": 2,
+      "total_price": 300000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: chai"
+    },
+    {
+      "name": "Nước Lavie",
+      "unit_price": 15000,
+      "quantity": 4,
+      "total_price": 60000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: chai"
+    },
+    {
+      "name": "Trà đá",
+      "unit_price": 20000,
+      "quantity": 1,
+      "total_price": 20000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: ấm"
+    },
+    {
+      "name": "Khăn lạnh",
+      "unit_price": 3000,
+      "quantity": 5,
+      "total_price": 15000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": "Phí chung, không phải món ăn"
+    },
+    {
+      "name": "Củ quả luộc",
+      "unit_price": 80000,
+      "quantity": 2,
+      "total_price": 160000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: đĩa"
+    },
+    {
+      "name": "Bò xào măng trúc",
+      "unit_price": 150000,
+      "quantity": 2,
+      "total_price": 300000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: đĩa"
+    },
+    {
+      "name": "Bia Sài Gòn",
+      "unit_price": 30000,
+      "quantity": 10,
+      "total_price": 300000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: chai"
+    },
+    {
+      "name": "Ếch đồng xào măng",
+      "unit_price": 150000,
+      "quantity": 1,
+      "total_price": 150000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: đĩa"
+    },
+    {
+      "name": "Khoai lệ phố",
+      "unit_price": 75000,
+      "quantity": 1,
+      "total_price": 75000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: đĩa"
+    },
+    {
+      "name": "Bò lúc lắc",
+      "unit_price": 165000,
+      "quantity": 1,
+      "total_price": 165000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: đĩa"
+    },
+    {
+      "name": "Cá chình nướng, lẩu",
+      "unit_price": 725000,
+      "quantity": 1.4,
+      "total_price": 1015000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg"
+    },
+    {
+      "name": "Cháo chim câu",
+      "unit_price": 165000,
+      "quantity": 1,
+      "total_price": 165000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: nồi"
+    }
+  ],
+  "sub_total": 6290000,
+  "vat_percent": 8.0,
+  "vat_amount": 503200,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 6793200,
+  "has_unclear_items": false,
+  "raw_text_fallback": "Hóa đơn GTGT (VAT Invoice) chính thức. VAT 8% tính riêng từng dòng. Seller: Quận Tây Hồ, Hà Nội. Buyer: Q. Bình Thạnh, TP.HCM. Mã tra cứu HĐĐT: K4R7CZIDJ5F"
+}

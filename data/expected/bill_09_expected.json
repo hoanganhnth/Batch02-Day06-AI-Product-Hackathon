@@ -1,0 +1,85 @@
+{
+  "restaurant_name": "Tổ chức hướng dẫn tham quan Vịnh Hạ Long & Cát Bà",
+  "items": [
+    {
+      "name": "Tiền tàu thăm vịnh Hạ Long",
+      "unit_price": 1600000,
+      "quantity": 1,
+      "total_price": 1600000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": "KHÔNG phải món ăn — phí thuê tàu, chia đều"
+    },
+    {
+      "name": "Vé thăm quan",
+      "unit_price": 120000,
+      "quantity": 6,
+      "total_price": 720000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": "KHÔNG phải món ăn — vé tham quan, chia đều"
+    },
+    {
+      "name": "Ngao Hoa",
+      "unit_price": 380000,
+      "quantity": 1,
+      "total_price": 380000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg"
+    },
+    {
+      "name": "Thịt rang",
+      "unit_price": 200000,
+      "quantity": 1,
+      "total_price": 200000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cua biển",
+      "unit_price": 580000,
+      "quantity": 4.3,
+      "total_price": 2494000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg. 4.3 × 580,000 = 2,494,000"
+    },
+    {
+      "name": "Mực biển",
+      "unit_price": 550000,
+      "quantity": 1.5,
+      "total_price": 825000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg. 1.5 × 550,000 = 825,000"
+    },
+    {
+      "name": "Thủy sâm",
+      "unit_price": 650000,
+      "quantity": 3.2,
+      "total_price": 3080000,
+      "item_type": "food",
+      "confidence": 0.9,
+      "note": "Đơn vị: kg. Lưu ý: 3.2 × 650,000 = 2,080,000 nhưng bill ghi 3,080,000. Có thể sai số do bill viết tay"
+    },
+    {
+      "name": "Cơm trắng + Rau xanh + (không đọc được) + Tráng miệng",
+      "unit_price": 80000,
+      "quantity": 6,
+      "total_price": 480000,
+      "item_type": "food",
+      "confidence": 0.8,
+      "note": "4 mục gộp 1 dòng, có 1 mục không đọc được. 6 × 80,000 = 480,000"
+    }
+  ],
+  "sub_total": 9779000,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 9779000,
+  "has_unclear_items": true,
+  "raw_text_fallback": "Bill viết tay trên tàu du lịch Hạ Long. Dòng Thủy sâm có sai số tính toán (3.2×650k=2.08tr nhưng ghi 3.08tr). Dòng 8 gộp 4 thứ, 1 mục không đọc được."
+}

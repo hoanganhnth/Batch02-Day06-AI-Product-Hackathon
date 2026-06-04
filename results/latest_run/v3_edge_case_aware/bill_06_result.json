@@ -1,0 +1,139 @@
+{
+  "restaurant_name": "Mỹ Hạnh",
+  "items": [
+    {
+      "name": "Tôm Hùm",
+      "unit_price": 1400000,
+      "quantity": 5.0,
+      "total_price": 7000000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Tôm Tít",
+      "unit_price": 230000,
+      "quantity": 2.0,
+      "total_price": 460000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Tôm Hùm",
+      "unit_price": 2300000,
+      "quantity": 12.9,
+      "total_price": 29670000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Mực ống",
+      "unit_price": 250000,
+      "quantity": 10.0,
+      "total_price": 2500000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Nghêu",
+      "unit_price": 250000,
+      "quantity": 10.0,
+      "total_price": 2500000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cá Nục",
+      "unit_price": 70000,
+      "quantity": 12.0,
+      "total_price": 840000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Thịt Rây",
+      "unit_price": 70000,
+      "quantity": 10.0,
+      "total_price": 700000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Lợn Gà",
+      "unit_price": 36000,
+      "quantity": 5.0,
+      "total_price": 180000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Mì Xào",
+      "unit_price": 20000,
+      "quantity": 10.0,
+      "total_price": 200000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Nước Ngọt",
+      "unit_price": 30000,
+      "quantity": 10.0,
+      "total_price": 300000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Rau Muống",
+      "unit_price": 6000,
+      "quantity": 10.0,
+      "total_price": 60000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cơm",
+      "unit_price": 2000,
+      "quantity": 10.0,
+      "total_price": 20000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Bia",
+      "unit_price": 10000,
+      "quantity": 83.0,
+      "total_price": 830000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Vay Chee",
+      "unit_price": 30000,
+      "quantity": 3.0,
+      "total_price": 90000,
+      "item_type": "food",
+      "confidence": 0.7,
+      "note": "Khó đọc"
+    }
+  ],
+  "sub_total": null,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 85300000,
+  "has_unclear_items": true,
+  "raw_text_fallback": null
+}

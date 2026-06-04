@@ -1,0 +1,67 @@
+{
+  "restaurant_name": null,
+  "items": [
+    {
+      "name": "Pod",
+      "unit_price": 500000,
+      "quantity": 1,
+      "total_price": 500000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Có thể là shisha/hookah pod"
+    },
+    {
+      "name": "Budweiser",
+      "unit_price": 50000,
+      "quantity": 2,
+      "total_price": 100000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Ốc hương nướng",
+      "unit_price": 350000,
+      "quantity": 1,
+      "total_price": 350000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cua hấp 2 con",
+      "unit_price": 1100000,
+      "quantity": 1,
+      "total_price": 1100000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Hàu nướng mỡ hành",
+      "unit_price": 60000,
+      "quantity": 10,
+      "total_price": 600000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Gà hun khói",
+      "unit_price": 500000,
+      "quantity": 1,
+      "total_price": 500000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    }
+  ],
+  "sub_total": 3150000,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 3150000,
+  "has_unclear_items": false,
+  "raw_text_fallback": null
+}

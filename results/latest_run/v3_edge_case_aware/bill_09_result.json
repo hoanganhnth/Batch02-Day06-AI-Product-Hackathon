@@ -1,0 +1,85 @@
+{
+  "restaurant_name": "Tổ chức hướng dẫn tham quan Vịnh Hạ Long & Cát Bà",
+  "items": [
+    {
+      "name": "Tiền tàu thăm vịnh Hạ Long",
+      "unit_price": 160000,
+      "quantity": 1.0,
+      "total_price": 160000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Vé thăm quan",
+      "unit_price": 120000,
+      "quantity": 6.0,
+      "total_price": 720000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Ngao hấp",
+      "unit_price": 38000,
+      "quantity": 1.0,
+      "total_price": 38000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Thịt xào",
+      "unit_price": 55000,
+      "quantity": 1.0,
+      "total_price": 55000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cua biển",
+      "unit_price": 550000,
+      "quantity": 1.5,
+      "total_price": 825000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Mực xào",
+      "unit_price": 65000,
+      "quantity": 1.0,
+      "total_price": 65000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Tôm hấp",
+      "unit_price": 360000,
+      "quantity": 1.0,
+      "total_price": 360000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Công thêm rau xào + gỏi + tráng miệng",
+      "unit_price": 180000,
+      "quantity": 1.0,
+      "total_price": 180000,
+      "item_type": "combo",
+      "confidence": 1.0,
+      "note": "Includes rau xào, gỏi, tráng miệng"
+    }
+  ],
+  "sub_total": 9779000,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 9779000,
+  "has_unclear_items": false,
+  "raw_text_fallback": null
+}

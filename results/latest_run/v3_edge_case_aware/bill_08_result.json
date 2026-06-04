@@ -1,0 +1,85 @@
+{
+  "restaurant_name": "Nhà Hàng / Quán Cafe",
+  "items": [
+    {
+      "name": "Cà phê sữa đá",
+      "unit_price": 35000,
+      "quantity": 2.0,
+      "total_price": 70000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Trà đào cam sả",
+      "unit_price": 45000,
+      "quantity": 1.0,
+      "total_price": 45000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Sinh tố bơ",
+      "unit_price": 55000,
+      "quantity": 1.0,
+      "total_price": 55000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Nước suối Lavie",
+      "unit_price": 15000,
+      "quantity": 2.0,
+      "total_price": 30000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Phở bò tái nam",
+      "unit_price": 75000,
+      "quantity": 2.0,
+      "total_price": 150000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cơm gà Hải Nam",
+      "unit_price": 85000,
+      "quantity": 1.0,
+      "total_price": 85000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Gỏi cuốn tôm thịt (2 cuốn)",
+      "unit_price": 60000,
+      "quantity": 1.0,
+      "total_price": 60000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Bánh flan caramel",
+      "unit_price": 30000,
+      "quantity": 2.0,
+      "total_price": 60000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    }
+  ],
+  "sub_total": 585000,
+  "vat_percent": 0.0,
+  "vat_amount": 0,
+  "service_charge_percent": 5.0,
+  "service_charge_amount": 29250,
+  "grand_total": 614250,
+  "has_unclear_items": false,
+  "raw_text_fallback": null
+}

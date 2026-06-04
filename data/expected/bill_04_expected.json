@@ -1,0 +1,40 @@
+{
+  "restaurant_name": null,
+  "items": [
+    {
+      "name": "COMBO 2 NGƯỜI",
+      "unit_price": 268000,
+      "quantity": 1,
+      "total_price": 268000,
+      "item_type": "combo",
+      "confidence": 1.0,
+      "note": "Gồm: Cuốn lẩu bò Mỹ nhỏ (L1N) + Cuốn phơi sương (C1) + Coca cola (D5)"
+    },
+    {
+      "name": "Khăn Lạnh",
+      "unit_price": 3000,
+      "quantity": 2,
+      "total_price": 6000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": "Phí chung, không phải món ăn"
+    },
+    {
+      "name": "Lạc",
+      "unit_price": 15000,
+      "quantity": 1,
+      "total_price": 15000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    }
+  ],
+  "sub_total": 289000,
+  "vat_percent": 10.0,
+  "vat_amount": 28900,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 317900,
+  "has_unclear_items": false,
+  "raw_text_fallback": "Grand-Total (USD): $15.14"
+}

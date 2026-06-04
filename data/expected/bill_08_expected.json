@@ -1,0 +1,85 @@
+{
+  "restaurant_name": "TÊN NHÀ HÀNG / QUÁN CAFE",
+  "items": [
+    {
+      "name": "Cà phê sữa đá",
+      "unit_price": 35000,
+      "quantity": 2,
+      "total_price": 70000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: ly"
+    },
+    {
+      "name": "Trà đào cam sả",
+      "unit_price": 45000,
+      "quantity": 1,
+      "total_price": 45000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: ly"
+    },
+    {
+      "name": "Sinh tố bơ",
+      "unit_price": 55000,
+      "quantity": 1,
+      "total_price": 55000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: ly"
+    },
+    {
+      "name": "Nước suối Lavie",
+      "unit_price": 15000,
+      "quantity": 2,
+      "total_price": 30000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: chai"
+    },
+    {
+      "name": "Phở bò tái nạm",
+      "unit_price": 75000,
+      "quantity": 2,
+      "total_price": 150000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: tô"
+    },
+    {
+      "name": "Cơm gà Hải Nam",
+      "unit_price": 85000,
+      "quantity": 1,
+      "total_price": 85000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: phần"
+    },
+    {
+      "name": "Gỏi cuốn tôm thịt (2 cuốn)",
+      "unit_price": 45000,
+      "quantity": 2,
+      "total_price": 90000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: phần (mỗi phần 2 cuốn)"
+    },
+    {
+      "name": "Bánh flan caramel",
+      "unit_price": 30000,
+      "quantity": 2,
+      "total_price": 60000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: phần"
+    }
+  ],
+  "sub_total": 585000,
+  "vat_percent": 0.0,
+  "vat_amount": 0,
+  "service_charge_percent": 5.0,
+  "service_charge_amount": 29250,
+  "grand_total": 614250,
+  "has_unclear_items": false,
+  "raw_text_fallback": "Phiếu thanh toán NH-0042. Bàn 12, 4 khách. NV: Minh. Thanh toán: Chuyển khoản. Thuế GTGT 0%."
+}

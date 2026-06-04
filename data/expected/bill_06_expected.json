@@ -1,0 +1,175 @@
+{
+  "restaurant_name": "Nhà Hàng Mỹ Hạnh",
+  "items": [
+    {
+      "name": "Tôm Hùm",
+      "unit_price": 4400000,
+      "quantity": 5,
+      "total_price": 22000000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg"
+    },
+    {
+      "name": "Tôm Tít",
+      "unit_price": 2300000,
+      "quantity": 2.6,
+      "total_price": 5980000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg"
+    },
+    {
+      "name": "Tôm Tít",
+      "unit_price": 2500000,
+      "quantity": 11.2,
+      "total_price": 28000000,
+      "item_type": "food",
+      "confidence": 0.9,
+      "note": "Đơn vị: kg. Viết giống 13.2 nhưng phải là 11.2 để khớp thành tiền"
+    },
+    {
+      "name": "Mực Ống",
+      "unit_price": 250000,
+      "quantity": 10,
+      "total_price": 2500000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Nghêu",
+      "unit_price": 250000,
+      "quantity": 10,
+      "total_price": 2500000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cá Mú",
+      "unit_price": 700000,
+      "quantity": 12,
+      "total_price": 8400000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg"
+    },
+    {
+      "name": "Thịt Rang",
+      "unit_price": 100000,
+      "quantity": 11,
+      "total_price": 1100000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Con Gà",
+      "unit_price": 360000,
+      "quantity": 5,
+      "total_price": 1800000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Sò Lông",
+      "unit_price": 200000,
+      "quantity": 10,
+      "total_price": 2000000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Mực",
+      "unit_price": 300000,
+      "quantity": 11,
+      "total_price": 3300000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "10 Rau Muống + 10 Rau Cải Xào",
+      "unit_price": 60000,
+      "quantity": 20,
+      "total_price": 1200000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "2 loại rau gộp chung: 10 rau muống + 10 rau cải xào"
+    },
+    {
+      "name": "Cơm",
+      "unit_price": 200000,
+      "quantity": 4,
+      "total_price": 800000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Sò Điệp",
+      "unit_price": 1000000,
+      "quantity": 3,
+      "total_price": 3000000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: kg"
+    },
+    {
+      "name": "3 Khoai Tây Chiên + 3 Trứng Chiên",
+      "unit_price": null,
+      "quantity": null,
+      "total_price": 360000,
+      "item_type": "food",
+      "confidence": 0.7,
+      "note": "Không ghi đơn giá. Phần '3 Trứng Chiên' không rõ, khó đọc"
+    },
+    {
+      "name": "Cơm",
+      "unit_price": null,
+      "quantity": 12,
+      "total_price": 240000,
+      "item_type": "food",
+      "confidence": 0.9,
+      "note": "Không ghi đơn giá. Không rõ loại cơm gì"
+    },
+    {
+      "name": "38 Khăn + 4 Xì Dầu + 4 Mù Tạt",
+      "unit_price": null,
+      "quantity": null,
+      "total_price": 470000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": "Phí chung: khăn lạnh + gia vị"
+    },
+    {
+      "name": "12 Dừa + 19 (không đọc được)",
+      "unit_price": null,
+      "quantity": null,
+      "total_price": 1180000,
+      "item_type": "food",
+      "confidence": 0.6,
+      "note": "Phần '19 ...' không đọc được chữ viết tay"
+    },
+    {
+      "name": "30 Suối + 8 Khoáng + 6 Ngọt",
+      "unit_price": null,
+      "quantity": 44,
+      "total_price": 470000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đồ uống gộp: 30 nước suối + 8 nước khoáng + 6 nước ngọt"
+    }
+  ],
+  "sub_total": 85300000,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 85300000,
+  "has_unclear_items": true,
+  "raw_text_fallback": "Bill viết tay 100%. Các dòng khó đọc: dòng 3 (qty giống 13.2 nhưng phải là 11.2), dòng 14 (trứng chiên không rõ), dòng 17 (19 + gì đó không đọc được)."
+}

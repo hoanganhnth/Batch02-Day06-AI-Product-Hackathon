@@ -1,0 +1,40 @@
+{
+  "restaurant_name": "MOTA CAFE",
+  "items": [
+    {
+      "name": "Gold Kiwi Green Tea (Trà Kiwi)",
+      "unit_price": 35000,
+      "quantity": 1,
+      "total_price": 35000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Trà sữa vị hạt dẻ",
+      "unit_price": 30000,
+      "quantity": 1,
+      "total_price": 30000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Trà sữa vị phúc bồn tử",
+      "unit_price": 30000,
+      "quantity": 1,
+      "total_price": 30000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    }
+  ],
+  "sub_total": 95000,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 85000,
+  "has_unclear_items": false,
+  "raw_text_fallback": "Giảm 10%: -10,000đ. Tiền hàng 95,000 → Tổng 85,000"
+}

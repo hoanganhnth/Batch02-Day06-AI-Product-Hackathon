@@ -1,0 +1,130 @@
+{
+  "restaurant_name": null,
+  "items": [
+    {
+      "name": "Cá song hấp xì dầu",
+      "unit_price": 1150000,
+      "quantity": 3.1,
+      "total_price": 3565000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Rượu táo mèo",
+      "unit_price": 150000,
+      "quantity": 2.0,
+      "total_price": 300000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Nước lavie",
+      "unit_price": 8000,
+      "quantity": 3.0,
+      "total_price": 24000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Trà đá",
+      "unit_price": 20000,
+      "quantity": 1.0,
+      "total_price": 20000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Khăn lạnh",
+      "unit_price": 3000,
+      "quantity": 5.0,
+      "total_price": 15000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Củ quả luộc",
+      "unit_price": 12000,
+      "quantity": 2.0,
+      "total_price": 24000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Bò xào măng trúc",
+      "unit_price": 150000,
+      "quantity": 2.0,
+      "total_price": 300000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Bia sài gòn",
+      "unit_price": 30000,
+      "quantity": 1.0,
+      "total_price": 30000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Ếch đồng xào măng",
+      "unit_price": 150000,
+      "quantity": 1.0,
+      "total_price": 150000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Khoai lệ phố",
+      "unit_price": 75000,
+      "quantity": 1.0,
+      "total_price": 75000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Bò lúc lắc",
+      "unit_price": 165000,
+      "quantity": 1.0,
+      "total_price": 165000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cá chình nướng, lẩu",
+      "unit_price": 725000,
+      "quantity": 1.4,
+      "total_price": 1015000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cháo chim câu",
+      "unit_price": 165000,
+      "quantity": 1.0,
+      "total_price": 165000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    }
+  ],
+  "sub_total": 6005000,
+  "vat_percent": 8.0,
+  "vat_amount": 480400,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 6485400,
+  "has_unclear_items": false,
+  "raw_text_fallback": null
+}
