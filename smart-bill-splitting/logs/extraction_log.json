@@ -1,0 +1,372 @@
+[
+  {
+    "file": "bill_01.png",
+    "timestamp": "2026-06-04T09:53:32.189313",
+    "provider": "gemini-2.5-flash",
+    "fallback_used": false,
+    "success": true,
+    "extraction": {
+      "restaurant_name": null,
+      "items": [
+        {
+          "name": "Pod",
+          "unit_price": 500000,
+          "quantity": 1,
+          "total_price": 500000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Budweiser",
+          "unit_price": 50000,
+          "quantity": 2,
+          "total_price": 100000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Ốc hương nướng",
+          "unit_price": 350000,
+          "quantity": 1,
+          "total_price": 350000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Cua hấp 2 con",
+          "unit_price": 1100000,
+          "quantity": 1,
+          "total_price": 1100000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Hàu nướng mỡ hành",
+          "unit_price": 60000,
+          "quantity": 10,
+          "total_price": 600000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Gà hun khói",
+          "unit_price": 500000,
+          "quantity": 1,
+          "total_price": 500000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        }
+      ],
+      "sub_total": 3150000,
+      "vat_percent": null,
+      "vat_amount": 0,
+      "service_charge_percent": null,
+      "service_charge_amount": 0,
+      "grand_total": 3150000,
+      "has_unclear_items": false,
+      "raw_text_fallback": null,
+      "provider": "gemini-2.5-flash"
+    }
+  },
+  {
+    "file": "bill_02.png",
+    "timestamp": "2026-06-04T09:53:46.853668",
+    "provider": "gemini-2.5-flash",
+    "fallback_used": false,
+    "success": true,
+    "extraction": {
+      "restaurant_name": "NHÀ HÀNG",
+      "items": [
+        {
+          "name": "Cai Xao",
+          "unit_price": 35000,
+          "quantity": 1,
+          "total_price": 35000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Com Trắng",
+          "unit_price": 20000,
+          "quantity": 2,
+          "total_price": 40000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Trứng Tráng",
+          "unit_price": 40000,
+          "quantity": 1,
+          "total_price": 40000,
+          "item_type": "food",
+          "confidence": 0.9,
+          "note": "Read as 'Trùng Trắng', corrected to 'Trứng Tráng' based on common dishes"
+        },
+        {
+          "name": "Rau Muống",
+          "unit_price": 35000,
+          "quantity": 1,
+          "total_price": 35000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Ốc Hương Nướng",
+          "unit_price": 550000,
+          "quantity": 0,
+          "total_price": 275000,
+          "item_type": "food",
+          "confidence": 0.9,
+          "note": "Quantity is 0.50, rounded to 0 for int type"
+        },
+        {
+          "name": "Tôm Tít Rang Trứng Muối",
+          "unit_price": 1000000,
+          "quantity": 1,
+          "total_price": 1500000,
+          "item_type": "food",
+          "confidence": 0.9,
+          "note": "Quantity is 1.50, rounded to 1 for int type"
+        },
+        {
+          "name": "Cá Mú Chiên",
+          "unit_price": 650000,
+          "quantity": 3,
+          "total_price": 2275000,
+          "item_type": "food",
+          "confidence": 0.9,
+          "note": "Quantity is 3.50, rounded to 3 for int type"
+        },
+        {
+          "name": "Bia Heniken Lon",
+          "unit_price": 20000,
+          "quantity": 11,
+          "total_price": 220000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Khăn Lạnh",
+          "unit_price": 3000,
+          "quantity": 10,
+          "total_price": 30000,
+          "item_type": "shared_fee",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Thịt Chưng Mắm Tép",
+          "unit_price": 85000,
+          "quantity": 1,
+          "total_price": 85000,
+          "item_type": "food",
+          "confidence": 0.9,
+          "note": "Read as 'Thịt Chung Mắm Tẹp', corrected to 'Thịt Chưng Mắm Tép' based on common dishes"
+        },
+        {
+          "name": "Pepsi",
+          "unit_price": 15000,
+          "quantity": 2,
+          "total_price": 30000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Twister Lon",
+          "unit_price": 15000,
+          "quantity": 2,
+          "total_price": 30000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        }
+      ],
+      "sub_total": 4595000,
+      "vat_percent": null,
+      "vat_amount": 0,
+      "service_charge_percent": null,
+      "service_charge_amount": 0,
+      "grand_total": 4595000,
+      "has_unclear_items": false,
+      "raw_text_fallback": null,
+      "provider": "gemini-2.5-flash"
+    }
+  },
+  {
+    "file": "bill_03.png",
+    "timestamp": "2026-06-04T09:53:56.009558",
+    "provider": "gemini-2.5-flash",
+    "fallback_used": false,
+    "success": true,
+    "extraction": {
+      "restaurant_name": "MOTA CAFE",
+      "items": [
+        {
+          "name": "Gold Kiwi Green Tea (Trà Kiwi)",
+          "unit_price": 35000,
+          "quantity": 1,
+          "total_price": 35000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Trà sữa vị hạt dẻ",
+          "unit_price": 30000,
+          "quantity": 1,
+          "total_price": 30000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Trà sữa vị phúc bồn tử",
+          "unit_price": 30000,
+          "quantity": 1,
+          "total_price": 30000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        }
+      ],
+      "sub_total": 95000,
+      "vat_percent": null,
+      "vat_amount": 0,
+      "service_charge_percent": null,
+      "service_charge_amount": 0,
+      "grand_total": 85000,
+      "has_unclear_items": false,
+      "raw_text_fallback": null,
+      "provider": "gemini-2.5-flash"
+    }
+  },
+  {
+    "file": "bill_04.png",
+    "timestamp": "2026-06-04T09:54:03.144892",
+    "provider": "gemini-2.5-flash",
+    "fallback_used": false,
+    "success": true,
+    "extraction": {
+      "restaurant_name": null,
+      "items": [
+        {
+          "name": "COMBO 2 NGƯỜI",
+          "unit_price": 268000,
+          "quantity": 1,
+          "total_price": 268000,
+          "item_type": "combo",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Khăn Lạnh",
+          "unit_price": 3000,
+          "quantity": 2,
+          "total_price": 6000,
+          "item_type": "shared_fee",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Lạc",
+          "unit_price": 15000,
+          "quantity": 1,
+          "total_price": 15000,
+          "item_type": "shared_fee",
+          "confidence": 1.0,
+          "note": null
+        }
+      ],
+      "sub_total": 289000,
+      "vat_percent": 10.0,
+      "vat_amount": 28900,
+      "service_charge_percent": null,
+      "service_charge_amount": null,
+      "grand_total": 317900,
+      "has_unclear_items": true,
+      "raw_text_fallback": null,
+      "provider": "gemini-2.5-flash"
+    }
+  },
+  {
+    "file": "bill_05.png",
+    "timestamp": "2026-06-04T09:54:16.000778",
+    "provider": "gemini-2.5-flash",
+    "fallback_used": false,
+    "success": true,
+    "extraction": {
+      "restaurant_name": null,
+      "items": [
+        {
+          "name": "Nấm mèo khô nguyên tai 1 kg (quy cách 5 x 1 kg)",
+          "unit_price": 650000,
+          "quantity": 115,
+          "total_price": 74750000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Nấm mèo khô nguyên tai 100 gram (quy cách 50x100gram)",
+          "unit_price": 687500,
+          "quantity": 45,
+          "total_price": 30937500,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Nấm mèo khô cắt sợi 1 kg (quy cách 5x1kg)",
+          "unit_price": 650000,
+          "quantity": 20,
+          "total_price": 13000000,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        },
+        {
+          "name": "Nấm mèo khô cắt sợi 100 gram (quy cách 50x100gram)",
+          "unit_price": 687500,
+          "quantity": 61,
+          "total_price": 41937500,
+          "item_type": "food",
+          "confidence": 1.0,
+          "note": null
+        }
+      ],
+      "sub_total": 160625000,
+      "vat_percent": null,
+      "vat_amount": null,
+      "service_charge_percent": null,
+      "service_charge_amount": null,
+      "grand_total": 160625000,
+      "has_unclear_items": false,
+      "raw_text_fallback": null,
+      "provider": "gemini-2.5-flash"
+    }
+  },
+  {
+    "file": "bill_06.png",
+    "timestamp": "2026-06-04T09:55:03.929858",
+    "provider": "gemini-2.5-flash",
+    "fallback_used": false,
+    "success": false,
+    "extraction": {
+      "error": "Lỗi khi gọi gemini-2.5-flash: 2 validation errors for BillExtraction\nitems.1.quantity\n  Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=2.6, input_type=float]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_from_float\nitems.2.quantity\n  Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=11.2, input_type=float]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_from_float",
+      "provider": "gemini-2.5-flash",
+      "items": [],
+      "has_unclear_items": true
+    }
+  }
+]

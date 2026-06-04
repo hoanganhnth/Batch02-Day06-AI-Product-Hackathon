@@ -1,0 +1,19 @@
+# === Environment ===
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# === Logs (giữ lại file, bỏ qua nội dung nhạy cảm) ===
+# Nếu muốn commit log evidence thì bỏ dòng này
+# logs/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db

@@ -1,0 +1,49 @@
+{
+  "restaurant_name": null,
+  "items": [
+    {
+      "name": "Nắm mèo khô nguyên tải 1 kg (quy cách 5 x 1 kg)",
+      "unit_price": 650000,
+      "quantity": 115,
+      "total_price": 74750000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: thùng. ĐÂY KHÔNG PHẢI MÓN ĂN — là cát vệ sinh mèo (cat litter)"
+    },
+    {
+      "name": "Nắm mèo khô nguyên tải 100 gram (quy cách 50x100gram)",
+      "unit_price": 687500,
+      "quantity": 45,
+      "total_price": 30937500,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: thùng. ĐÂY KHÔNG PHẢI MÓN ĂN — là cát vệ sinh mèo (cat litter)"
+    },
+    {
+      "name": "Nắm mèo khô cát sợi 1 kg (quy cách 5x1kg)",
+      "unit_price": 650000,
+      "quantity": 20,
+      "total_price": 13000000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: thùng. ĐÂY KHÔNG PHẢI MÓN ĂN — là cát vệ sinh mèo (cat litter)"
+    },
+    {
+      "name": "Nắm mèo khô cát sợi 100 gram (quy cách 50x100gram)",
+      "unit_price": 687500,
+      "quantity": 61,
+      "total_price": 41937500,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị: thùng. ĐÂY KHÔNG PHẢI MÓN ĂN — là cát vệ sinh mèo (cat litter)"
+    }
+  ],
+  "sub_total": 160625000,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 160625000,
+  "has_unclear_items": false,
+  "raw_text_fallback": "ĐÂY KHÔNG PHẢI BILL NHÀ HÀNG. Là hóa đơn bán sỉ cát vệ sinh mèo (B2B wholesale invoice). AI phải nhận biết và từ chối xử lý chia tiền."
+}
