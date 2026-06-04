@@ -1,19 +1,20 @@
 """
-OpenAI GPT-4o Vision Provider.
+OpenAI GPT-5.x Vision Provider.
 Sử dụng OpenAI Chat Completions API với image_url input.
 Hỗ trợ response_format=json_object để ép output JSON chuẩn.
+Model có thể cấu hình qua biến môi trường OPENAI_MODEL.
 """
 
 from openai import OpenAI
 from .base import VisionProvider
 from ..prompt_template import SYSTEM_PROMPT, USER_PROMPT
-from ..config import OPENAI_API_KEY
+from ..config import OPENAI_API_KEY, OPENAI_MODEL
 
 
 class OpenAIProvider(VisionProvider):
-    """Provider sử dụng OpenAI GPT-4o cho Vision tasks."""
+    """Provider sử dụng OpenAI GPT-5.x cho Vision tasks."""
 
-    name = "openai-gpt-4o"
+    name = "openai-gpt-5"
 
     def __init__(self):
         if not OPENAI_API_KEY:
@@ -22,7 +23,7 @@ class OpenAIProvider(VisionProvider):
                 "Hãy thêm vào file .env: OPENAI_API_KEY=sk-..."
             )
         self.client = OpenAI(api_key=OPENAI_API_KEY)
-        self.model = "gpt-4o"
+        self.model = OPENAI_MODEL
 
     def extract_from_image(self, image_base64: str, mime_type: str) -> str:
         """

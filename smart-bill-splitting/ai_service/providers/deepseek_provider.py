@@ -9,7 +9,7 @@ import base64
 from openai import OpenAI
 from .base import VisionProvider
 from ..prompt_template import SYSTEM_PROMPT, USER_PROMPT
-from ..config import DEEPSEEK_API_KEY, OPENAI_API_KEY, DEEPSEEK_MODEL
+from ..config import DEEPSEEK_API_KEY, OPENAI_API_KEY, DEEPSEEK_MODEL, OPENAI_MODEL
 
 
 class DeepSeekProvider(VisionProvider):
@@ -49,7 +49,7 @@ class DeepSeekProvider(VisionProvider):
         # ==========================================
         print("   [DeepSeek] Đang chạy OpenAI OCR...")
         ocr_response = self.openai_client.chat.completions.create(
-            model="gpt-4o",
+            model=OPENAI_MODEL,
             messages=[
                 {
                     "role": "user",
