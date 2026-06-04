@@ -1,0 +1,121 @@
+{
+  "restaurant_name": null,
+  "items": [
+    {
+      "name": "Cải Xào",
+      "unit_price": 35000,
+      "quantity": 1,
+      "total_price": 35000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Cơm Trắng",
+      "unit_price": 20000,
+      "quantity": 2,
+      "total_price": 40000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Trứng Tráng",
+      "unit_price": 40000,
+      "quantity": 1,
+      "total_price": 40000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Rau Muống",
+      "unit_price": 35000,
+      "quantity": 1,
+      "total_price": 35000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Ốc Hương Nướng",
+      "unit_price": 550000,
+      "quantity": 0.5,
+      "total_price": 275000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị tính: kg. 0.5kg × 550,000/kg"
+    },
+    {
+      "name": "Tôm Tít Rang Trứng Muối",
+      "unit_price": 1000000,
+      "quantity": 1.5,
+      "total_price": 1500000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị tính: kg. 1.5kg × 1,000,000/kg"
+    },
+    {
+      "name": "Cá Mú Chiên",
+      "unit_price": 650000,
+      "quantity": 3.5,
+      "total_price": 2275000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": "Đơn vị tính: kg. 3.5kg × 650,000/kg"
+    },
+    {
+      "name": "Bia Heineken Lon",
+      "unit_price": 20000,
+      "quantity": 11,
+      "total_price": 220000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Khăn Lạnh",
+      "unit_price": 3000,
+      "quantity": 10,
+      "total_price": 30000,
+      "item_type": "shared_fee",
+      "confidence": 1.0,
+      "note": "Phí chung, không phải món ăn"
+    },
+    {
+      "name": "Thịt Chưng Mắm Tép",
+      "unit_price": 85000,
+      "quantity": 1,
+      "total_price": 85000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Pepsi",
+      "unit_price": 15000,
+      "quantity": 2,
+      "total_price": 30000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    },
+    {
+      "name": "Twister Lon",
+      "unit_price": 15000,
+      "quantity": 2,
+      "total_price": 30000,
+      "item_type": "food",
+      "confidence": 1.0,
+      "note": null
+    }
+  ],
+  "sub_total": 4595000,
+  "vat_percent": null,
+  "vat_amount": null,
+  "service_charge_percent": null,
+  "service_charge_amount": null,
+  "grand_total": 4595000,
+  "has_unclear_items": false,
+  "raw_text_fallback": null
+}
