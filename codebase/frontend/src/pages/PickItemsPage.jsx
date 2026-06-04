@@ -671,62 +671,7 @@ export default function PickItemsPage({
                   </div>
                 )}
 
-                {/* Edit Request Section */}
-                <div 
-                  style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    marginTop: '8px', 
-                    paddingTop: '8px', 
-                    borderTop: '1px dashed rgba(0,0,0,0.05)'
-                  }}
-                >
-                  {/* Status labels */}
-                  <div>
-                    {myEditReq && (
-                      <span style={{ fontSize: '0.7rem', color: 'var(--color-warning)', fontWeight: 600 }}>
-                        ⏳ Chờ Host duyệt sửa...
-                      </span>
-                    )}
-                    {approvedReq && (
-                      <span style={{ fontSize: '0.7rem', color: 'var(--color-success)', fontWeight: 600 }}>
-                        ✓ Host đã duyệt sửa
-                      </span>
-                    )}
-                    {rejectedReq && (
-                      <span style={{ fontSize: '0.7rem', color: 'var(--color-danger)', fontWeight: 600 }}>
-                        ✕ Yêu cầu sửa bị từ chối
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Request edit button */}
-                  {billStatus === 'picking' && myStatus !== 'submitted' && myStatus !== 'approved' && !myEditReq && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setRequestEditItem(item);
-                      }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--color-primary)',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '2px',
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        background: 'rgba(216,45,139,0.05)'
-                      }}
-                    >
-                      ✏️ Yêu cầu sửa
-                    </button>
-                  )}
-                </div>
+                {/* Chức năng Yêu cầu sửa đã ẩn cho bạn bè */}
               </div>
             );
           })}
