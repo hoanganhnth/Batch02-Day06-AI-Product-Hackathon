@@ -9,6 +9,12 @@ export default function PickItemsPage({
   setMembers,
   itemSelections,
   setItemSelections,
+  billStatus,
+  setBillStatus,
+  memberStatuses,
+  setMemberStatuses,
+  memberPayments,
+  setMemberPayments,
   onBack
 }) {
   const [userIdentified, setUserIdentified] = useState(false);
@@ -43,9 +49,17 @@ export default function PickItemsPage({
     setUserIdentified(true);
   };
 
+  // Get active member details
+  const activeMember = members.find(m => m.id === activeMemberId);
+  const myStatus = memberStatuses[activeMemberId] || 'picking';
+  const hasPaid = memberPayments[activeMemberId] || false;
+
   // Toggle item selection for current active member
   const handleToggleItem = (itemId) => {
     if (!activeMemberId) return;
+    // If bill is locked or member has submitted, disable toggling!
+    if (billStatus === 'locked' || myStatus === 'submitted') return;
+
     setItemSelections(prev => {
       const currentSelections = prev[itemId] || [];
       const exists = currentSelections.includes(activeMemberId);
@@ -58,8 +72,14 @@ export default function PickItemsPage({
     });
   };
 
-  // Get active member details
-  const activeMember = members.find(m => m.id === activeMemberId);
+  // Submit items to Host for review
+  const handleSubmitSelections = () => {
+    if (!activeMemberId) return;
+    setMemberStatuses(prev => ({
+      ...prev,
+      [activeMemberId]: 'submitted'
+    }));
+  };
 
   // Calculate bill sharing for the active member
   let personalCost = 0;
@@ -214,7 +234,7 @@ export default function PickItemsPage({
         </button>
       </div>
 
-      {/* Simulator Switcher Panel (Collapsible instruction) */}
+      {/* Simulator Switcher Panel */}
       <div className="glass-card" style={{ background: 'rgba(216, 45, 139, 0.02)', border: '1px dashed rgba(216, 45, 139, 0.3)', marginBottom: '0px' }}>
         <p className="subtitle" style={{ color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
           📱 TRÌNH GIẢ LẬP NHÓM BẠN BÈ
@@ -229,7 +249,10 @@ export default function PickItemsPage({
             <div 
               key={member.id} 
               className={`member-pill ${activeMemberId === member.id ? 'active' : ''}`}
-              onClick={() => setActiveMemberId(member.id)}
+              onClick={() => {
+                setActiveMemberId(member.id);
+                setUserIdentified(true);
+              }}
               style={{ padding: '6px 12px' }}
             >
               <div className={`member-avatar ${member.color}`}>
@@ -241,6 +264,41 @@ export default function PickItemsPage({
         </div>
       </div>
 
+      {/* Dynamic Status Banner */}
+      {billStatus === 'picking' ? (
+        myStatus === 'submitted' ? (
+          <div className="alert-note" style={{ background: 'rgba(16,185,129,0.05)', borderLeft: '3px solid var(--color-success)', color: '#065f46', marginBottom: 0 }}>
+            <span>⏳</span>
+            <div>
+              <strong>Đã gửi phần ăn!</strong> Danh sách món của bạn đã được lưu lại và gửi cho Host (Hoàng Anh) phê duyệt. Vui lòng chờ Host khóa hóa đơn để tiến hành chuyển khoản.
+            </div>
+          </div>
+        ) : (
+          <div className="alert-note" style={{ background: 'rgba(245,158,11,0.05)', borderLeft: '3px solid var(--color-warning)', color: '#92400e', marginBottom: 0 }}>
+            <span>👉</span>
+            <div>
+              Hóa đơn đang mở. Bạn hãy tick chọn các món mình đã ăn, sau đó bấm <strong>"Gửi Host duyệt"</strong> ở bên dưới.
+            </div>
+          </div>
+        )
+      ) : (
+        hasPaid ? (
+          <div className="alert-note" style={{ background: 'rgba(16,185,129,0.06)', borderLeft: '3px solid var(--color-success)', color: '#065f46', marginBottom: 0 }}>
+            <span>🎉</span>
+            <div>
+              <strong>Thanh toán hoàn tất!</strong> Bạn đã thanh toán xong phần tiền của mình cho Host. Cảm ơn bạn!
+            </div>
+          </div>
+        ) : (
+          <div className="alert-note" style={{ background: 'rgba(216,45,139,0.05)', borderLeft: '3px solid var(--color-primary)', color: 'var(--color-primary)', marginBottom: 0 }}>
+            <span>🔒</span>
+            <div>
+              <strong>Hóa đơn đã chốt!</strong> Host đã phê duyệt và khóa danh sách. Bạn không thể thay đổi món nữa. Hãy bấm <strong>"Thanh toán ngay"</strong> để chuyển khoản tiền món của mình.
+            </div>
+          </div>
+        )
+      )}
+
       {/* Bill summary title */}
       <div>
         <h2 className="title-lg" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🍲 {restaurant}</h2>
@@ -250,10 +308,10 @@ export default function PickItemsPage({
       {/* Items picking list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <h3 style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>
-          Chạm vào các món bạn đã ăn bên dưới:
+          Danh sách món ăn của bàn:
         </h3>
 
-        <div className="bill-list">
+        <div className="bill-list" style={{ opacity: (billStatus === 'locked' || myStatus === 'submitted') ? 0.85 : 1 }}>
           {billItems.map(item => {
             const selections = itemSelections[item.id] || [];
             const isCheckedByMe = selections.includes(activeMemberId);
@@ -266,9 +324,10 @@ export default function PickItemsPage({
                 onClick={() => handleToggleItem(item.id)}
                 className="bill-item-card" 
                 style={{ 
-                  cursor: 'pointer',
+                  cursor: (billStatus === 'locked' || myStatus === 'submitted') ? 'not-allowed' : 'pointer',
                   borderLeft: isCheckedByMe ? '4px solid var(--color-success)' : '1px solid rgba(0,0,0,0.04)',
-                  background: isCheckedByMe ? 'rgba(16, 185, 129, 0.04)' : 'rgba(0,0,0,0.01)'
+                  background: isCheckedByMe ? 'rgba(16, 185, 129, 0.04)' : 'rgba(0,0,0,0.01)',
+                  pointerEvents: (billStatus === 'locked' || myStatus === 'submitted') ? 'none' : 'auto'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -367,14 +426,46 @@ export default function PickItemsPage({
           <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
             Sửa bill (Host)
           </button>
-          <button 
-            onClick={handlePay} 
-            disabled={myTotalCost === 0} 
-            className="btn btn-primary" 
-            style={{ flex: 2, background: 'var(--gradient-success)', opacity: myTotalCost === 0 ? 0.5 : 1, border: 'none', boxShadow: 'none' }}
-          >
-            💸 Thanh toán ngay
-          </button>
+
+          {billStatus === 'picking' ? (
+            myStatus === 'submitted' ? (
+              <button 
+                disabled 
+                className="btn btn-secondary" 
+                style={{ flex: 2, background: 'rgba(0,0,0,0.03)', color: 'var(--color-text-muted)', cursor: 'not-allowed', borderColor: 'rgba(0,0,0,0.05)' }}
+              >
+                ⏳ Đang chờ Host duyệt...
+              </button>
+            ) : (
+              <button 
+                onClick={handleSubmitSelections}
+                disabled={myTotalCost === 0}
+                className="btn btn-primary"
+                style={{ flex: 2, background: 'var(--gradient-momo)', border: 'none', boxShadow: 'none', opacity: myTotalCost === 0 ? 0.5 : 1 }}
+              >
+                📤 Gửi Host duyệt phần ăn
+              </button>
+            )
+          ) : (
+            hasPaid ? (
+              <button 
+                disabled 
+                className="btn btn-success" 
+                style={{ flex: 2, background: 'var(--gradient-success)', opacity: 0.9, border: 'none', boxShadow: 'none', cursor: 'not-allowed' }}
+              >
+                ✓ Đã thanh toán xong
+              </button>
+            ) : (
+              <button 
+                onClick={handlePay} 
+                disabled={myTotalCost === 0} 
+                className="btn btn-primary" 
+                style={{ flex: 2, background: 'var(--gradient-success)', opacity: myTotalCost === 0 ? 0.5 : 1, border: 'none', boxShadow: 'none' }}
+              >
+                💸 Thanh toán ngay
+              </button>
+            )
+          )}
         </div>
       </div>
 
@@ -383,7 +474,13 @@ export default function PickItemsPage({
         <PaymentModal 
           amount={myTotalCost} 
           memberName={activeMember?.name}
-          onClose={() => setShowPaymentSuccess(false)} 
+          onClose={() => {
+            setShowPaymentSuccess(false);
+            setMemberPayments(prev => ({
+              ...prev,
+              [activeMemberId]: true
+            }));
+          }} 
         />
       )}
     </div>

@@ -11,7 +11,13 @@ export default function ReviewPage({
   setSharedFees,
   members,
   setMembers,
+  itemSelections,
   setItemSelections,
+  billStatus,
+  setBillStatus,
+  memberStatuses,
+  setMemberStatuses,
+  memberPayments,
   onNext,
   onBack
 }) {
@@ -96,6 +102,13 @@ export default function ReviewPage({
       });
       return updated;
     });
+
+    // Clean up member status
+    setMemberStatuses(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      return updated;
+    });
   };
 
   // Calculate sum of food items
@@ -103,6 +116,31 @@ export default function ReviewPage({
   // Calculate sum of shared fees
   const feesTotal = sharedFees.reduce((sum, fee) => sum + fee.amount, 0);
   const grandTotal = itemsTotal + feesTotal;
+
+  // Calculate split costs per member
+  const calculateMemberCost = (memberId) => {
+    let personalCost = 0;
+    let sharedCost = 0;
+
+    billItems.forEach(item => {
+      const selections = itemSelections[item.id] || [];
+      const isSelected = selections.includes(memberId);
+      
+      if (isSelected) {
+        const totalItemAmount = item.price * item.qty;
+        const splitCount = selections.length;
+        
+        if (splitCount === 1) {
+          personalCost += totalItemAmount;
+        } else {
+          sharedCost += totalItemAmount / splitCount;
+        }
+      }
+    });
+
+    const myFeeShare = feesTotal / (members.length || 1);
+    return Math.round(personalCost + sharedCost + myFeeShare);
+  };
 
   // Generate web URL for link sharing
   const shareUrl = `${window.location.origin}${window.location.pathname}?page=pick`;
@@ -257,6 +295,115 @@ export default function ReviewPage({
             </div>
           ))}
         </div>
+      </div>
+
+      {/* 4.5. Real-time Split Monitoring (Bảng theo dõi chia tiền nhóm) */}
+      <div className="glass-card" style={{ marginTop: '10px' }}>
+        <h3 style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 600 }}>
+          📊 Theo dõi tiến độ chia tiền
+        </h3>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+          {members.map(m => {
+            const cost = calculateMemberCost(m.id);
+            const status = memberStatuses[m.id] || 'picking';
+            const hasPaid = memberPayments[m.id];
+            
+            return (
+              <div 
+                key={m.id} 
+                style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  background: 'rgba(0,0,0,0.015)', 
+                  border: '1px solid rgba(0,0,0,0.04)', 
+                  borderRadius: '10px' 
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className={`member-avatar ${m.color}`} style={{ width: '20px', height: '20px', fontSize: '0.65rem' }}>
+                    {m.avatar}
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{m.name}</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)' }}>
+                      Phần tiền: <strong style={{ color: 'var(--color-text-primary)' }}>{cost.toLocaleString()} đ</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Badges */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                  {billStatus === 'picking' ? (
+                    status === 'submitted' ? (
+                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', border: '1px solid rgba(16, 185, 129, 0.2)', fontSize: '0.65rem' }}>
+                        ✓ Đã gửi duyệt
+                      </span>
+                    ) : (
+                      <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.08)', color: 'var(--color-warning)', border: '1px solid rgba(245, 158, 11, 0.15)', fontSize: '0.65rem' }}>
+                        ⏳ Đang chọn
+                      </span>
+                    )
+                  ) : (
+                    hasPaid ? (
+                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)', border: '1.5px solid var(--color-success)', fontSize: '0.65rem', fontWeight: 'bold' }}>
+                        💸 Đã thanh toán
+                      </span>
+                    ) : (
+                      <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.08)', color: 'var(--color-danger)', border: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '0.65rem' }}>
+                        💵 Chờ thanh toán
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Lock / Unlock Button for Admin */}
+        {billStatus === 'picking' ? (
+          <button 
+            onClick={() => setBillStatus('locked')}
+            className="btn btn-primary"
+            style={{ 
+              width: '100%', 
+              background: 'var(--gradient-momo)', 
+              fontWeight: 700, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '6px',
+              border: 'none',
+              boxShadow: 'none'
+            }}
+          >
+            🔒 Chốt chia tiền & Khóa hóa đơn
+          </button>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-success)', background: 'rgba(16,185,129,0.05)', padding: '8px', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.15)', textAlign: 'center', fontWeight: 600 }}>
+              🔒 Hóa đơn đã khóa. Bạn bè có thể thanh toán.
+            </div>
+            <button 
+              onClick={() => setBillStatus('picking')}
+              className="btn btn-secondary"
+              style={{ 
+                width: '100%', 
+                fontWeight: 600, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '6px',
+                borderColor: 'rgba(0,0,0,0.1)'
+              }}
+            >
+              🔓 Mở khóa hóa đơn
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 5. Members Management Section (Admin/Host adds members first) */}

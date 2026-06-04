@@ -49,6 +49,11 @@ export default function App() {
     7: []
   }));
 
+  // Hackathon Multi-User Status States
+  const [billStatus, setBillStatus] = useState(() => loadStoredString('momo_split_billStatus', 'picking')); // 'picking', 'locked'
+  const [memberStatuses, setMemberStatuses] = useState(() => loadStored('momo_split_memberStatuses', {})); // { memberId: 'picking' | 'submitted' }
+  const [memberPayments, setMemberPayments] = useState(() => loadStored('momo_split_memberPayments', {})); // { memberId: boolean }
+
   // Save to localStorage when state changes
   useEffect(() => {
     localStorage.setItem('momo_split_restaurant', restaurant);
@@ -74,6 +79,18 @@ export default function App() {
     localStorage.setItem('momo_split_itemSelections', JSON.stringify(itemSelections));
   }, [itemSelections]);
 
+  useEffect(() => {
+    localStorage.setItem('momo_split_billStatus', billStatus);
+  }, [billStatus]);
+
+  useEffect(() => {
+    localStorage.setItem('momo_split_memberStatuses', JSON.stringify(memberStatuses));
+  }, [memberStatuses]);
+
+  useEffect(() => {
+    localStorage.setItem('momo_split_memberPayments', JSON.stringify(memberPayments));
+  }, [memberPayments]);
+
   // Synchronize state in real-time when updated in another tab
   useEffect(() => {
     const handleStorageChange = (e) => {
@@ -91,6 +108,12 @@ export default function App() {
           setMembers(JSON.parse(e.newValue));
         } else if (e.key === 'momo_split_itemSelections') {
           setItemSelections(JSON.parse(e.newValue));
+        } else if (e.key === 'momo_split_billStatus') {
+          setBillStatus(e.newValue);
+        } else if (e.key === 'momo_split_memberStatuses') {
+          setMemberStatuses(JSON.parse(e.newValue));
+        } else if (e.key === 'momo_split_memberPayments') {
+          setMemberPayments(JSON.parse(e.newValue));
         }
       } catch (err) {
         console.error("Error parsing storage change", err);
@@ -119,6 +142,9 @@ export default function App() {
     localStorage.removeItem('momo_split_sharedFees');
     localStorage.removeItem('momo_split_members');
     localStorage.removeItem('momo_split_itemSelections');
+    localStorage.removeItem('momo_split_billStatus');
+    localStorage.removeItem('momo_split_memberStatuses');
+    localStorage.removeItem('momo_split_memberPayments');
 
     setReceiptImage('');
     setRestaurant(mockBillResult.restaurant);
@@ -139,6 +165,9 @@ export default function App() {
       6: [],
       7: []
     });
+    setBillStatus('picking');
+    setMemberStatuses({});
+    setMemberPayments({});
 
     // Clear URL page param
     window.history.pushState({}, '', window.location.pathname);
@@ -192,7 +221,13 @@ export default function App() {
           setSharedFees={setSharedFees}
           members={members}
           setMembers={setMembers}
+          itemSelections={itemSelections}
           setItemSelections={setItemSelections}
+          billStatus={billStatus}
+          setBillStatus={setBillStatus}
+          memberStatuses={memberStatuses}
+          setMemberStatuses={setMemberStatuses}
+          memberPayments={memberPayments}
           onNext={() => {
             window.history.pushState({}, '', '?page=pick');
             setCurrentPage('pick');
@@ -213,6 +248,12 @@ export default function App() {
           setMembers={setMembers}
           itemSelections={itemSelections}
           setItemSelections={setItemSelections}
+          billStatus={billStatus}
+          setBillStatus={setBillStatus}
+          memberStatuses={memberStatuses}
+          setMemberStatuses={setMemberStatuses}
+          memberPayments={memberPayments}
+          setMemberPayments={setMemberPayments}
           onBack={() => {
             window.history.pushState({}, '', '?page=review');
             setCurrentPage('review');
