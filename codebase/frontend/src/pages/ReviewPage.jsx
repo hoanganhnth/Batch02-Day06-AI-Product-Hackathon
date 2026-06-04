@@ -224,7 +224,7 @@ export default function ReviewPage({
                   <div className="bill-item-info">
                     <div className="bill-item-name">
                       {item.name}
-                      {isLowConf && <span className="badge badge-low-conf">⚠️ Combo?</span>}
+                      {isLowConf && <span className="badge badge-low-conf">Combo?</span>}
                       {isMistake && <span className="badge badge-mistake">Nhầm Lẫn AI</span>}
                     </div>
                     
