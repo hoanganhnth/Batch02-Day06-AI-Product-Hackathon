@@ -54,7 +54,15 @@ class DeepSeekProvider(VisionProvider):
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": "Đọc chính xác toàn bộ chữ và số trên hóa đơn này, giữ nguyên bố cục. Không giải thích thêm."},
+                        {"type": "text", "text": (
+                            "Đọc chính xác toàn bộ chữ và số trên hóa đơn này.\n"
+                            "QUAN TRỌNG: Giữ nguyên bố cục BẢNG với các cột rõ ràng.\n"
+                            "Format mỗi dòng món ăn thành: STT | Tên món | SL | Đơn giá | Thành tiền\n"
+                            "Dùng dấu | để ngăn cách các cột. Giữ nguyên tên tiếng Việt.\n"
+                            "Nếu tên món dài bị xuống dòng, ghép lại thành 1 dòng.\n"
+                            "Ghi rõ các dòng tổng: Thành tiền, VAT, Tổng thanh toán.\n"
+                            "Không giải thích thêm."
+                        )},
                         {
                             "type": "image_url",
                             "image_url": {

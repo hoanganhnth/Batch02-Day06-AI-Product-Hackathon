@@ -38,8 +38,8 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
           let width = img.width;
           let height = img.height;
           
-          // Max dimension 1024px to keep base64 size small (< 300KB)
-          const MAX_SIZE = 1024;
+          // Max dimension 2048px — cần giữ nét cho bill giấy nhiệt
+          const MAX_SIZE = 2048;
           if (width > height && width > MAX_SIZE) {
             height = Math.round((height * MAX_SIZE) / width);
             width = MAX_SIZE;
@@ -53,8 +53,8 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           
-          // Compress as JPEG 70%
-          resolve(canvas.toDataURL('image/jpeg', 0.7));
+          // Compress as JPEG 85% — giữ nét số tiền trên giấy nhiệt
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
         };
         img.onerror = reject;
         img.src = e.target.result;

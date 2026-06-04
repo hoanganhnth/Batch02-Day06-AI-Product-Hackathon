@@ -5,6 +5,7 @@ Prompt được thiết kế để:
   2. Phân loại đúng food / shared_fee / combo
   3. Trả về confidence score cho từng dòng
   4. Xử lý edge case: VAT, phí dịch vụ, bill mờ
+  5. Cross-validation tổng tiền để phát hiện lỗi đọc
 """
 
 SYSTEM_PROMPT = """
@@ -46,6 +47,38 @@ Nhiệm vụ: Nhận ảnh chụp hóa đơn (bill) và trả về JSON chính x
 8. **Xử lý hóa đơn viết tay / Món bị gộp:**
    - Nếu bill gộp nhiều món vào 1 dòng (VD: "3 Khoai tây + 3 Trứng = 360000"), hãy để `unit_price = null`, `quantity = null`, và điền tổng vào `total_price`. Ghi chú rõ vào trường "note".
 
+9. **CHIẾN LƯỢC ĐỌC BẢNG NHIỀU CỘT (CỰC KỲ QUAN TRỌNG):**
+
+   Hóa đơn Việt Nam thường có dạng bảng với các cột:
+   `STT | Tên món | SL | Đ.Giá | T.Tiền`
+
+   Bước đọc bắt buộc:
+   a) **Đọc CỘT CUỐI CÙNG trước (Thành Tiền / T.Tiền)** — đây là cột số lớn nhất,
+      dễ đọc nhất, nằm sát mép phải. Gán giá trị này vào `total_price`.
+   b) **Đọc cột SL (Số lượng)** — thường là số nhỏ (1, 2, 3, 5...).
+      Cẩn thận KHÔNG nhầm STT (Số Thứ Tự) ở đầu dòng thành SL.
+   c) **Tính ngược `unit_price`** = `total_price` / `quantity`.
+      So sánh kết quả tính ngược với số đọc được ở cột Đ.Giá.
+      Nếu khớp → chắc chắn đúng. Nếu lệch → đọc lại cẩn thận.
+   d) **Tên món dài bị rớt xuống dòng:** VD: "Nấm đông cô nhân" ở dòng trên,
+      "thịt" ở dòng dưới → ghép lại thành "Nấm đông cô nhân thịt".
+      SL và Đ.Giá luôn nằm trên CÙNG HÀNG với dòng cuối cùng của tên món.
+      KHÔNG BAO GIỜ lấy số liệu của dòng bên dưới đắp lên dòng trên.
+
+10. **CROSS-VALIDATION BẮT BUỘC (Tự kiểm tra trước khi trả kết quả):**
+    Sau khi đọc xong tất cả items, thực hiện 2 phép kiểm tra:
+    a) Với MỖI item: kiểm tra `unit_price × quantity == total_price`.
+       Nếu không khớp → bạn đọc sai, hãy nhìn lại ảnh.
+    b) `sum(tất cả item.total_price) == sub_total` trên bill.
+       Nếu tổng tính không khớp sub_total → có item nào đó bị đọc sai giá.
+       Hãy rà soát lại từng dòng có confidence thấp nhất.
+
+11. **Giấy nhiệt (thermal paper) — Cẩn thận nhầm số:**
+    Bill in trên giấy nhiệt rất dễ nhòe. Các cặp số hay bị nhầm:
+    - 6 ↔ 8, 0 ↔ 9, 5 ↔ 3, 1 ↔ 7
+    Nếu đọc xong mà cross-validation (rule 10) bị lỗi, hãy nghi ngờ
+    các chữ số này trước và thử đọc lại.
+
 ## JSON SCHEMA:
 
 {
@@ -74,5 +107,7 @@ Nhiệm vụ: Nhận ảnh chụp hóa đơn (bill) và trả về JSON chính x
 
 USER_PROMPT = """
 Hãy bóc tách hóa đơn trong ảnh này thành JSON theo đúng schema đã cho.
+Nhớ áp dụng chiến lược đọc bảng nhiều cột: đọc cột Thành Tiền trước, rồi tính ngược đơn giá.
+Sau khi đọc xong, tự cross-validate: sum(total_price) phải bằng sub_total, và unit_price × quantity phải bằng total_price cho mỗi dòng.
 Trả về JSON duy nhất, không giải thích thêm.
 """

@@ -5,10 +5,15 @@ Hỗ trợ 3 chế độ:
   1. extract_bill()              → Dùng 1 provider
   2. extract_bill_with_fallback() → Tự động chuyển provider khi lỗi
   3. extract_bill_compare()       → Chạy song song 2 providers, so sánh kết quả
+
+Cải tiến:
+  - Retry với Exponential Backoff khi gặp lỗi tạm thời (timeout, rate limit)
+  - Image Preprocessing: resize, tăng contrast, auto-rotate trước khi gửi AI
 """
 
 import json
 import base64
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -16,6 +21,7 @@ from .schema import BillExtraction
 from .providers.openai_provider import OpenAIProvider
 from .providers.gemini_provider import GeminiProvider
 from .providers.deepseek_provider import DeepSeekProvider
+from .image_preprocessor import preprocess_image
 
 
 # === Registry các providers ===
@@ -24,6 +30,18 @@ PROVIDERS = {
     "gemini": GeminiProvider,
     "deepseek": DeepSeekProvider,
 }
+
+
+# === Cấu hình Retry ===
+MAX_RETRIES = 3            # Số lần thử lại tối đa
+RETRY_BASE_DELAY = 1.0     # Thời gian chờ cơ sở (giây) — sẽ tăng theo cấp số nhân
+
+# Các loại lỗi tạm thời có thể retry
+RETRIABLE_KEYWORDS = [
+    "timeout", "rate limit", "429", "503", "502", "500",
+    "connection", "timed out", "overloaded", "capacity",
+    "too many requests", "service unavailable",
+]
 
 
 def _detect_mime(image_path: str) -> str:
@@ -36,6 +54,57 @@ def _detect_mime(image_path: str) -> str:
         ".webp": "image/webp",
     }
     return mime_map.get(suffix, "image/jpeg")
+
+
+def _is_retriable_error(error: Exception) -> bool:
+    """Kiểm tra xem lỗi có phải tạm thời (có thể retry) hay không."""
+    error_msg = str(error).lower()
+    return any(keyword in error_msg for keyword in RETRIABLE_KEYWORDS)
+
+
+def _call_with_retry(func, provider_name: str, max_retries: int = MAX_RETRIES) -> str:
+    """
+    Gọi hàm func() với cơ chế retry exponential backoff.
+
+    Nếu gặp lỗi tạm thời (timeout, rate limit, connection error),
+    sẽ tự động thử lại lên tới max_retries lần với thời gian chờ tăng dần.
+
+    Args:
+        func: Hàm cần gọi (thường là llm.extract_from_image)
+        provider_name: Tên provider để log
+        max_retries: Số lần retry tối đa
+
+    Returns:
+        Kết quả từ func()
+
+    Raises:
+        Exception: Nếu hết số lần retry mà vẫn lỗi
+    """
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            return func()
+        except Exception as e:
+            last_error = e
+            if attempt < max_retries - 1 and _is_retriable_error(e):
+                wait_time = RETRY_BASE_DELAY * (2 ** attempt)  # 1s, 2s, 4s
+                print(f"   ⏳ [{provider_name}] Lỗi tạm thời: {e}")
+                print(f"   🔄 Retry {attempt + 1}/{max_retries} sau {wait_time:.0f}s...")
+                time.sleep(wait_time)
+            else:
+                # Lỗi không thể retry (ví dụ: API key sai, lỗi logic)
+                raise
+    raise last_error
+
+
+def _prepare_image(image_path: str) -> tuple[str, str]:
+    """
+    Tiền xử lý ảnh và trả về (base64_string, mime_type).
+    Ảnh sẽ được resize, tăng contrast, auto-rotate và nén trước khi encode.
+    """
+    processed_bytes, mime_type = preprocess_image(image_path)
+    image_base64 = base64.b64encode(processed_bytes).decode("utf-8")
+    return image_base64, mime_type
 
 
 def _parse_and_validate(raw_text: str) -> dict:
@@ -88,15 +157,16 @@ def extract_bill(image_path: str, provider: str = "openai") -> dict:
     if provider not in PROVIDERS:
         return {"error": f"Provider '{provider}' không tồn tại. Chọn: {list(PROVIDERS.keys())}"}
 
-    # Đọc ảnh và encode base64
-    image_data = Path(image_path).read_bytes()
-    image_base64 = base64.b64encode(image_data).decode("utf-8")
-    mime_type = _detect_mime(image_path)
+    # Tiền xử lý ảnh (resize, tăng contrast, auto-rotate, nén)
+    image_base64, mime_type = _prepare_image(image_path)
 
-    # Gọi provider
+    # Gọi provider với retry tự động
     llm = PROVIDERS[provider]()
     try:
-        raw_text = llm.extract_from_image(image_base64, mime_type)
+        raw_text = _call_with_retry(
+            func=lambda: llm.extract_from_image(image_base64, mime_type),
+            provider_name=llm.name,
+        )
         result = _parse_and_validate(raw_text)
         result["provider"] = llm.name
         return result
@@ -181,16 +251,18 @@ def extract_bill_compare(image_path: str) -> dict:
         data = extract_bill_compare("test_data/bill_01.jpg")
         print(data["comparison"])
     """
-    image_data = Path(image_path).read_bytes()
-    image_base64 = base64.b64encode(image_data).decode("utf-8")
-    mime_type = _detect_mime(image_path)
+    # Tiền xử lý ảnh 1 lần duy nhất, dùng chung cho tất cả providers
+    image_base64, mime_type = _prepare_image(image_path)
 
     results = {}
     for name, ProviderClass in PROVIDERS.items():
         print(f"🔵 Đang chạy: {name}...")
         try:
             llm = ProviderClass()
-            raw_text = llm.extract_from_image(image_base64, mime_type)
+            raw_text = _call_with_retry(
+                func=lambda: llm.extract_from_image(image_base64, mime_type),
+                provider_name=llm.name,
+            )
             parsed = _parse_and_validate(raw_text)
             parsed["provider"] = llm.name
             results[name] = parsed
