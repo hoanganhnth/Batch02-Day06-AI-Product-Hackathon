@@ -85,7 +85,7 @@ if (!supabase) {
  * @param {Array} sharedFees - Shared fees list [{ id, name, amount }]
  * @returns {Promise<string>} - The newly created Bill UUID
  */
-export async function createBill(restaurant, items = [], sharedFees = []) {
+export async function createBill(restaurant, items = [], sharedFees = [], receiptImage = null) {
   if (!supabase) {
     console.error("Supabase client not initialized.");
     return 'demo_bill_id';
@@ -93,7 +93,7 @@ export async function createBill(restaurant, items = [], sharedFees = []) {
 
   const { data, error } = await supabase
     .from('bills')
-    .insert([{ restaurant, items, shared_fees: sharedFees, status: 'picking' }])
+    .insert([{ restaurant, items, shared_fees: sharedFees, status: 'picking', receipt_image: receiptImage }])
     .select('id')
     .single();
 
@@ -386,7 +386,6 @@ export async function handleEditRequest(billId, requestId, isApproved, updatedIt
   const status = isApproved ? 'approved' : 'rejected';
   
   if (isApproved && updatedItems) {
-    // Transaction-like update: update status of request AND update the bill items array
     const { error: billErr } = await supabase
       .from('bills')
       .update({ items: updatedItems })
@@ -406,6 +405,47 @@ export async function handleEditRequest(billId, requestId, isApproved, updatedIt
 
   if (error) {
     console.error("Error resolving edit request:", error.message);
+    throw error;
+  }
+}
+
+/**
+ * 12. Remove a member and their selections
+ */
+export async function removeMember(billId, memberId) {
+  if (!supabase) return;
+
+  await supabase
+    .from('item_selections')
+    .delete()
+    .eq('bill_id', billId)
+    .eq('member_id', memberId);
+
+  const { error } = await supabase
+    .from('members')
+    .delete()
+    .eq('bill_id', billId)
+    .eq('id', memberId);
+
+  if (error) {
+    console.error("Error removing member:", error.message);
+    throw error;
+  }
+}
+
+/**
+ * 13. Generic bill update (items, shared_fees, restaurant, etc.)
+ */
+export async function updateBill(billId, updates) {
+  if (!supabase) return;
+
+  const { error } = await supabase
+    .from('bills')
+    .update(updates)
+    .eq('id', billId);
+
+  if (error) {
+    console.error("Error updating bill:", error.message);
     throw error;
   }
 }

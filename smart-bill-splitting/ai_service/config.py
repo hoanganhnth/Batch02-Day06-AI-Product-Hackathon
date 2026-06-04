@@ -19,5 +19,5 @@ DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
 # === Provider mặc định ===
-# Có thể đổi bằng biến môi trường: DEFAULT_PROVIDER=gemini
-DEFAULT_PROVIDER = os.getenv("DEFAULT_PROVIDER", "openai")  # "openai" hoặc "gemini"
+# Có thể đổi bằng biến môi trường: DEFAULT_PROVIDER=deepseek
+DEFAULT_PROVIDER = os.getenv("DEFAULT_PROVIDER", "deepseek")  # "openai", "gemini" hoặc "deepseek"

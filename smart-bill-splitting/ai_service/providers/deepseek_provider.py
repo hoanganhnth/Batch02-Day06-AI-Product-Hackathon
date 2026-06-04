@@ -7,15 +7,13 @@ Bởi vì DeepSeek V4 Flash chỉ nhận text (không đọc được ảnh), pr
 
 import base64
 from openai import OpenAI
-from google import genai
-from google.genai import types
 from .base import VisionProvider
 from ..prompt_template import SYSTEM_PROMPT, USER_PROMPT
-from ..config import DEEPSEEK_API_KEY, GEMINI_API_KEY, DEEPSEEK_MODEL
+from ..config import DEEPSEEK_API_KEY, OPENAI_API_KEY, DEEPSEEK_MODEL
 
 
 class DeepSeekProvider(VisionProvider):
-    """Provider sử dụng DeepSeek (thông qua Gemini OCR) cho Vision tasks."""
+    """Provider sử dụng DeepSeek (thông qua OpenAI OCR) cho Vision tasks."""
 
     name = "deepseek-v4"
 
@@ -25,9 +23,9 @@ class DeepSeekProvider(VisionProvider):
                 "DEEPSEEK_API_KEY chưa được cấu hình! "
                 "Hãy thêm vào file .env: DEEPSEEK_API_KEY=sk-..."
             )
-        if not GEMINI_API_KEY:
+        if not OPENAI_API_KEY:
             raise ValueError(
-                "GEMINI_API_KEY chưa được cấu hình (Cần Gemini làm OCR cho DeepSeek)!"
+                "OPENAI_API_KEY chưa được cấu hình (Cần OpenAI làm OCR cho DeepSeek)!"
             )
             
         # Khởi tạo DeepSeek client (tương thích OpenAI SDK)
@@ -37,8 +35,8 @@ class DeepSeekProvider(VisionProvider):
         )
         self.model = DEEPSEEK_MODEL  # Có thể đổi thành deepseek-v4-pro qua biến môi trường
 
-        # Khởi tạo Gemini client cho phần OCR
-        self.gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+        # Khởi tạo OpenAI client cho phần OCR
+        self.openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
     def extract_from_image(self, image_base64: str, mime_type: str) -> str:
         """
@@ -47,22 +45,28 @@ class DeepSeekProvider(VisionProvider):
         image_bytes = base64.b64decode(image_base64)
 
         # ==========================================
-        # BƯỚC 1: Dùng Gemini để trích xuất text (OCR)
+        # BƯỚC 1: Dùng OpenAI để trích xuất text (OCR)
         # ==========================================
-        print("   [DeepSeek] Đang chạy Gemini OCR...")
-        ocr_response = self.gemini_client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=[
-                types.Content(
-                    role="user",
-                    parts=[
-                        types.Part.from_text(text="Đọc chính xác toàn bộ chữ và số trên hóa đơn này, giữ nguyên bố cục. Không giải thích thêm."),
-                        types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-                    ],
-                ),
-            ]
+        print("   [DeepSeek] Đang chạy OpenAI OCR...")
+        ocr_response = self.openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Đọc chính xác toàn bộ chữ và số trên hóa đơn này, giữ nguyên bố cục. Không giải thích thêm."},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{mime_type};base64,{image_base64}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=2048,
         )
-        raw_text_from_image = ocr_response.text.strip()
+        raw_text_from_image = ocr_response.choices[0].message.content.strip()
 
         # ==========================================
         # BƯỚC 2: Dùng DeepSeek để bóc tách JSON

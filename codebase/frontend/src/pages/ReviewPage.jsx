@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import ComboPopup from '../components/ComboPopup';
 import PaymentModal from '../components/PaymentModal';
+import { supabase, lockBill, addMember, removeMember, approveMemberSelections, handleEditRequest as handleEditRequestApi, updateBill, payMemberShare } from '../services/supabaseService';
 
 export default function ReviewPage({
+  billId,
   receiptImage,
   restaurant,
   setRestaurant,
@@ -48,38 +50,40 @@ export default function ReviewPage({
       setShowLockWarningModal(true);
     } else {
       setBillStatus('locked');
+      if (billId) lockBill(billId, true).catch(console.error);
     }
   };
 
   const handleConfirmLock = () => {
     setBillStatus('locked');
+    if (billId) lockBill(billId, true).catch(console.error);
     setShowLockWarningModal(false);
   };
 
   // Edit item quantity
   const handleQtyChange = (id, newQty) => {
     const qty = parseInt(newQty) || 0;
-    setBillItems(prev => prev.map(item => item.id === id ? { ...item, qty } : item));
+    const newItems = billItems.map(item => item.id === id ? { ...item, qty } : item);
+    setBillItems(newItems);
+    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
   };
 
   // Edit item price (Override capability for Failure Mode)
   const handlePriceChange = (id, newPrice) => {
     const price = parseInt(newPrice) || 0;
-    setBillItems(prev => prev.map(item => item.id === id ? { ...item, price } : item));
+    const newItems = billItems.map(item => item.id === id ? { ...item, price } : item);
+    setBillItems(newItems);
+    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
   };
 
   // Correction Path: Convert food item to shared fee
   const handleConvertToSharedFee = (item) => {
-    // 1. Remove from billItems
-    setBillItems(prev => prev.filter(i => i.id !== item.id));
-    
-    // 2. Add to sharedFees
-    const newFee = {
-      id: item.id,
-      name: item.name,
-      amount: item.price * item.qty
-    };
-    setSharedFees(prev => [...prev, newFee]);
+    const newItems = billItems.filter(i => i.id !== item.id);
+    const newFee = { id: item.id, name: item.name, amount: item.price * item.qty };
+    const newFees = [...sharedFees, newFee];
+    setBillItems(newItems);
+    setSharedFees(newFees);
+    if (billId) updateBill(billId, { items: newItems, shared_fees: newFees }).catch(console.error);
   };
 
   // Resolve Low-confidence Combo Item
@@ -101,17 +105,14 @@ export default function ReviewPage({
       }));
     }
 
-    setBillItems(prev => prev.map(item => {
+    const newItems = billItems.map(item => {
       if (item.id === itemId) {
-        return { 
-          ...item, 
-          confidence: 'resolved', // mark as resolved
-          isCombo: true, // flag to keep it editable
-          aiNote: choice === 'all' ? 'Đã gán: Chia đều cả bàn' : 'Đã gán: Tự tích chọn' 
-        };
+        return { ...item, confidence: 'resolved', isCombo: true, aiNote: choice === 'all' ? 'Đã gán: Chia đều cả bàn' : 'Đã gán: Tự tích chọn' };
       }
       return item;
-    }));
+    });
+    setBillItems(newItems);
+    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
     setComboItemToResolve(null);
   };
 
@@ -133,13 +134,12 @@ export default function ReviewPage({
 
     setMembers(prev => [...prev, newMember]);
     setNewMemberInput('');
+    if (billId) addMember(billId, newId, cleanName, randomAvatar, randomColor).catch(console.error);
   };
 
   const handleRemoveMember = (id) => {
-    if (id === 'host') return; // Host is owner, cannot be removed
+    if (id === 'host') return;
     setMembers(prev => prev.filter(m => m.id !== id));
-    
-    // Clean up their item selections
     setItemSelections(prev => {
       const updated = { ...prev };
       Object.keys(updated).forEach(itemId => {
@@ -147,51 +147,36 @@ export default function ReviewPage({
       });
       return updated;
     });
-
-    // Clean up member status
-    setMemberStatuses(prev => {
-      const updated = { ...prev };
-      delete updated[id];
-      return updated;
-    });
+    setMemberStatuses(prev => { const u = { ...prev }; delete u[id]; return u; });
+    if (billId) removeMember(billId, id).catch(console.error);
   };
 
   // Handle Edit Requests from Friends
   const handleApproveEdit = (req) => {
-    // 1. Update the actual item in billItems
-    setBillItems(prev => prev.map(item => {
+    const newItems = billItems.map(item => {
       if (item.id === req.itemId) {
-        return {
-          ...item,
-          name: req.newVal.name,
-          price: req.newVal.price,
-          qty: req.newVal.qty
-        };
+        return { ...item, name: req.newVal.name, price: req.newVal.price, qty: req.newVal.qty };
       }
       return item;
-    }));
-
-    // 2. Mark edit request as approved
+    });
+    setBillItems(newItems);
     setEditRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'approved' } : r));
+    if (billId) handleEditRequestApi(billId, req.id, true, newItems).catch(console.error);
   };
 
   const handleRejectEdit = (reqId) => {
-    // Mark edit request as rejected
     setEditRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: 'rejected' } : r));
+    if (billId) handleEditRequestApi(billId, reqId, false).catch(console.error);
   };
 
   const handleApproveMemberSelections = (memberId) => {
-    setMemberStatuses(prev => ({
-      ...prev,
-      [memberId]: 'approved'
-    }));
+    setMemberStatuses(prev => ({ ...prev, [memberId]: 'approved' }));
+    if (billId) approveMemberSelections(billId, memberId, true).catch(console.error);
   };
 
   const handleRejectMemberSelections = (memberId) => {
-    setMemberStatuses(prev => ({
-      ...prev,
-      [memberId]: 'picking'
-    }));
+    setMemberStatuses(prev => ({ ...prev, [memberId]: 'picking' }));
+    if (billId) approveMemberSelections(billId, memberId, false).catch(console.error);
   };
 
   // Calculate sum of food items
@@ -264,7 +249,9 @@ export default function ReviewPage({
   const allFriendsPaid = friends.length > 0 && friends.every(m => memberPayments[m.id]);
 
   // Generate web URL for link sharing
-  const shareUrl = `${window.location.origin}${window.location.pathname}?page=pick`;
+  const shareUrl = billId
+    ? `${window.location.origin}${window.location.pathname}?page=pick&bill=${billId}`
+    : `${window.location.origin}${window.location.pathname}?page=pick`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
@@ -642,7 +629,7 @@ export default function ReviewPage({
               🔒 Hóa đơn đã khóa. Bạn bè có thể thanh toán.
             </div>
             <button 
-              onClick={() => setBillStatus('picking')}
+              onClick={() => { setBillStatus('picking'); if (billId) lockBill(billId, false).catch(console.error); }}
               className="btn btn-secondary"
               style={{ 
                 width: '100%', 
@@ -983,10 +970,8 @@ export default function ReviewPage({
           memberName="Hoàng Anh (Host)"
           onClose={() => {
             setShowHostPaymentSuccess(false);
-            setMemberPayments(prev => ({
-              ...prev,
-              host: true
-            }));
+            setMemberPayments(prev => ({ ...prev, host: true }));
+            if (billId) payMemberShare(billId, 'host').catch(console.error);
           }} 
         />
       )}

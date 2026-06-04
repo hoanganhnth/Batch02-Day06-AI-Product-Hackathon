@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PaymentModal from '../components/PaymentModal';
+import { supabase, addMember, updateItemSelections as updateItemSelectionsApi, submitSelections, payMemberShare, createEditRequest } from '../services/supabaseService';
 
 // Helper component for the Edit Request form
 function EditRequestForm({ item, activeMember, onClose, onSubmit }) {
@@ -122,6 +123,7 @@ function EditRequestForm({ item, activeMember, onClose, onSubmit }) {
 }
 
 export default function PickItemsPage({
+  billId,
   restaurant,
   billItems,
   sharedFees,
@@ -167,6 +169,7 @@ export default function PickItemsPage({
     setActiveMemberId(newId);
     setUserIdentified(true);
     setNewMemberName('');
+    if (billId) addMember(billId, newId, cleanName, randomAvatar, randomColor).catch(console.error);
   };
 
   const handleJoinAsExisting = (id) => {
@@ -190,17 +193,16 @@ export default function PickItemsPage({
       const myQty = currentSelections.filter(id => id === activeMemberId).length;
 
       if (myQty > 0) {
-        // Toggle OFF: remove all selections of the active user for this item
         const newSelections = currentSelections.filter(id => id !== activeMemberId);
+        if (billId) updateItemSelectionsApi(billId, String(itemId), activeMemberId, 0).catch(console.error);
         return { ...prev, [itemId]: newSelections };
       } else {
-        // Toggle ON: add 1 unit for the active user
         const item = billItems.find(i => i.id === itemId);
         if (!item) return prev;
-        const othersQty = currentSelections.length; // total selected by others is selections.length since myQty is 0
+        const othersQty = currentSelections.length;
         const maxAllowed = item.qty === 1 ? 1 : Math.max(0, item.qty - othersQty);
-        if (maxAllowed === 0) return prev; // cannot select if no units left
-
+        if (maxAllowed === 0) return prev;
+        if (billId) updateItemSelectionsApi(billId, String(itemId), activeMemberId, 1).catch(console.error);
         return { ...prev, [itemId]: [...currentSelections, activeMemberId] };
       }
     });
@@ -218,13 +220,9 @@ export default function PickItemsPage({
       const myQty = currentSelections.filter(id => id === activeMemberId).length;
       const othersQty = currentSelections.length - myQty;
       const maxAllowed = item.qty === 1 ? 1 : Math.max(0, item.qty - othersQty);
-
-      if (myQty >= maxAllowed) return prev; // Cannot select more than allowed
-
-      return {
-        ...prev,
-        [itemId]: [...currentSelections, activeMemberId]
-      };
+      if (myQty >= maxAllowed) return prev;
+      if (billId) updateItemSelectionsApi(billId, String(itemId), activeMemberId, myQty + 1).catch(console.error);
+      return { ...prev, [itemId]: [...currentSelections, activeMemberId] };
     });
   };
 
@@ -236,28 +234,19 @@ export default function PickItemsPage({
       const currentSelections = prev[itemId] || [];
       const myQty = currentSelections.filter(id => id === activeMemberId).length;
       if (myQty === 0) return prev;
-
-      // Remove exactly one occurrence of activeMemberId
       const index = currentSelections.indexOf(activeMemberId);
       if (index === -1) return prev;
-
       const newSelections = [...currentSelections];
       newSelections.splice(index, 1);
-
-      return {
-        ...prev,
-        [itemId]: newSelections
-      };
+      if (billId) updateItemSelectionsApi(billId, String(itemId), activeMemberId, myQty - 1).catch(console.error);
+      return { ...prev, [itemId]: newSelections };
     });
   };
 
-  // Submit items to Host for review
   const handleSubmitSelections = () => {
     if (!activeMemberId) return;
-    setMemberStatuses(prev => ({
-      ...prev,
-      [activeMemberId]: 'submitted'
-    }));
+    setMemberStatuses(prev => ({ ...prev, [activeMemberId]: 'submitted' }));
+    if (billId) submitSelections(billId, activeMemberId).catch(console.error);
   };
 
   // Proportional cost split calculations with host rounding adjustment
@@ -876,10 +865,8 @@ export default function PickItemsPage({
           memberName={activeMember?.name}
           onClose={() => {
             setShowPaymentSuccess(false);
-            setMemberPayments(prev => ({
-              ...prev,
-              [activeMemberId]: true
-            }));
+            setMemberPayments(prev => ({ ...prev, [activeMemberId]: true }));
+            if (billId) payMemberShare(billId, activeMemberId).catch(console.error);
           }} 
         />
       )}
@@ -909,6 +896,7 @@ export default function PickItemsPage({
               status: 'pending'
             };
             setEditRequests(prev => [...prev, req]);
+            if (billId) createEditRequest(billId, req).catch(console.error);
             setRequestEditItem(null);
           }}
         />
