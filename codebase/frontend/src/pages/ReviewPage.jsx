@@ -60,6 +60,13 @@ export default function ReviewPage({
     setShowLockWarningModal(false);
   };
 
+  // Edit item name
+  const handleNameChange = (id, newName) => {
+    const newItems = billItems.map(item => item.id === id ? { ...item, name: newName } : item);
+    setBillItems(newItems);
+    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
+  };
+
   // Edit item quantity
   const handleQtyChange = (id, newQty) => {
     const qty = parseInt(newQty) || 0;
@@ -289,18 +296,20 @@ export default function ReviewPage({
       </div>
 
       {/* 2. Restaurant details */}
-      <div className="glass-card" style={{ marginBottom: '0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '1.2rem' }}>🍲</span>
-          <input 
-            type="text" 
-            value={restaurant} 
-            onChange={(e) => setRestaurant(e.target.value)}
-            className="price-input"
-            style={{ width: '100%', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem', background: 'transparent', border: 'none', padding: '0' }}
-          />
+      {restaurant && restaurant !== 'Không rõ' && (
+        <div className="glass-card" style={{ marginBottom: '0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.2rem' }}>🍲</span>
+            <input 
+              type="text" 
+              value={restaurant} 
+              onChange={(e) => setRestaurant(e.target.value)}
+              className="price-input"
+              style={{ width: '100%', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem', background: 'transparent', border: 'none', padding: '0' }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Success Notice when all friends paid */}
       {allFriendsPaid && (
@@ -337,8 +346,24 @@ export default function ReviewPage({
               >
                 <div className="bill-item-main">
                   <div className="bill-item-info">
-                    <div className="bill-item-name" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                      <span style={{ flex: 1 }}>{item.name}</span>
+                    <div className="bill-item-name" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', minWidth: 0 }}>
+                      <input 
+                        type="text" 
+                        value={item.name} 
+                        onChange={(e) => handleNameChange(item.id, e.target.value)}
+                        style={{ 
+                          flex: 1, 
+                          minWidth: 0,
+                          background: 'transparent', 
+                          border: 'none', 
+                          fontWeight: 600, 
+                          fontSize: '0.88rem', 
+                          color: 'var(--color-text-primary)',
+                          padding: 0,
+                          margin: 0,
+                          outline: 'none'
+                        }}
+                      />
                       <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
                         {progressBadge}
                       </div>
@@ -422,12 +447,12 @@ export default function ReviewPage({
                   borderRadius: '10px' 
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span className={`member-avatar ${m.color}`} style={{ width: '20px', height: '20px', fontSize: '0.65rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                  <span className={`member-avatar ${m.color}`} style={{ width: '20px', height: '20px', fontSize: '0.65rem', flexShrink: 0 }}>
                     {m.avatar}
                   </span>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{m.name}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)' }}>
                       Phần tiền: <strong style={{ color: 'var(--color-text-primary)' }}>{cost.toLocaleString()} đ</strong>
                     </div>
@@ -474,8 +499,27 @@ export default function ReviewPage({
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                         <span className="badge" style={{ background: 'rgba(216, 45, 139, 0.08)', color: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', fontSize: '0.65rem', fontWeight: 'bold' }}>
-                          👑 Host (Chờ thanh toán)
+                          👑 Host ({billStatus === 'locked' ? 'Chờ thanh toán' : 'Đang chọn món'})
                         </span>
+                        {billStatus === 'picking' && (
+                          <button 
+                            onClick={onNext}
+                            style={{
+                              padding: '3px 8px',
+                              background: 'var(--gradient-momo)',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '4px',
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              boxShadow: 'var(--shadow-sm)',
+                              marginTop: '2px'
+                            }}
+                          >
+                            🙋 Tự chọn món
+                          </button>
+                        )}
                         {billStatus === 'locked' && (
                           <button 
                             onClick={() => setShowHostPaymentSuccess(true)}
@@ -785,6 +829,11 @@ export default function ReviewPage({
           <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
             Quay lại
           </button>
+          {billStatus === 'picking' && (
+            <button onClick={onNext} className="btn btn-secondary" style={{ flex: 1.2, borderColor: 'var(--color-primary)', color: 'var(--color-primary)', fontWeight: 600 }}>
+              🙋 Tự chọn món
+            </button>
+          )}
           <button onClick={() => setShowShareModal(true)} className="btn btn-primary" style={{ flex: 2, border: 'none', boxShadow: 'none' }}>
             🔗 Gửi nhóm chọn món
           </button>
@@ -926,7 +975,7 @@ export default function ReviewPage({
       {showHostPaymentSuccess && (
         <PaymentModal 
           amount={calculateMemberCost('host')} 
-          memberName="Hoàng Anh (Host)"
+          memberName={members.find(m => m.id === 'host')?.name || "Tôi (Host)"}
           onClose={() => {
             setShowHostPaymentSuccess(false);
             setMemberPayments(prev => ({ ...prev, host: true }));

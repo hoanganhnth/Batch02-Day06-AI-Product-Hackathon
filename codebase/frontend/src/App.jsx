@@ -23,14 +23,9 @@ export default function App() {
   const [billItems, setBillItems] = useState(() => loadStored('momo_split_billItems', []));
   const [sharedFees, setSharedFees] = useState(() => loadStored('momo_split_sharedFees', []));
   const [members, setMembers] = useState(() => loadStored('momo_split_members', [
-    { id: 'host', name: 'Hoàng Anh (Host)', avatar: 'HA', color: 'member-avatar-pink' },
-    { id: 'linh', name: 'Linh', avatar: 'L', color: 'member-avatar-blue' },
-    { id: 'nam', name: 'Nam', avatar: 'N', color: 'member-avatar-orange' },
-    { id: 'huong', name: 'Hương', avatar: 'H', color: 'member-avatar-green' }
+    { id: 'host', name: 'Tôi (Host)', avatar: 'T', color: 'member-avatar-pink' }
   ]));
-  const [itemSelections, setItemSelections] = useState(() => loadStored('momo_split_itemSelections', {
-    1: [], 2: ['host', 'linh', 'nam', 'huong'], 3: [], 4: [], 5: [], 6: [], 7: []
-  }));
+  const [itemSelections, setItemSelections] = useState(() => loadStored('momo_split_itemSelections', {}));
   const [billStatus, setBillStatus] = useState(() => loadStoredString('momo_split_billStatus', 'picking'));
   const [memberStatuses, setMemberStatuses] = useState(() => loadStored('momo_split_memberStatuses', {}));
   const [memberPayments, setMemberPayments] = useState(() => loadStored('momo_split_memberPayments', {}));
@@ -112,8 +107,9 @@ export default function App() {
   }, []);
 
   // --- Navigation helpers ---
-  const navigate = (page) => {
-    const qs = billId ? `?page=${page}&bill=${billId}` : `?page=${page}`;
+  const navigate = (page, role) => {
+    let qs = billId ? `?page=${page}&bill=${billId}` : `?page=${page}`;
+    if (role) qs += `&role=${role}`;
     window.history.pushState({}, '', qs);
     setCurrentPage(page);
   };
@@ -159,12 +155,9 @@ export default function App() {
     setBillItems([]);
     setSharedFees([]);
     setMembers([
-      { id: 'host', name: 'Hoàng Anh (Host)', avatar: 'HA', color: 'member-avatar-pink' },
-      { id: 'linh', name: 'Linh', avatar: 'L', color: 'member-avatar-blue' },
-      { id: 'nam', name: 'Nam', avatar: 'N', color: 'member-avatar-orange' },
-      { id: 'huong', name: 'Hương', avatar: 'H', color: 'member-avatar-green' }
+      { id: 'host', name: 'Tôi (Host)', avatar: 'T', color: 'member-avatar-pink' }
     ]);
-    setItemSelections({ 1: [], 2: ['host', 'linh', 'nam', 'huong'], 3: [], 4: [], 5: [], 6: [], 7: [] });
+    setItemSelections({});
     setBillStatus('picking');
     setMemberStatuses({});
     setMemberPayments({});
@@ -227,7 +220,7 @@ export default function App() {
           setMemberPayments={setMemberPayments}
           editRequests={editRequests}
           setEditRequests={setEditRequests}
-          onNext={() => navigate('pick')}
+          onNext={() => navigate('pick', 'host')}
           onBack={() => navigate('upload')}
         />
       )}

@@ -55,7 +55,7 @@ function EditRequestForm({ item, activeMember, onClose, onSubmit }) {
         </div>
 
         <p className="subtitle" style={{ fontSize: '0.78rem', marginBottom: '16px', color: 'var(--color-text-secondary)', lineHeight: '1.4' }}>
-          Bạn đang gửi yêu cầu sửa món cho Host (Hoàng Anh). Nhập các thông tin cần thay đổi:
+          Bạn đang gửi yêu cầu sửa món cho Host ({members.find(m => m.id === 'host')?.name || 'Tôi'}). Nhập các thông tin cần thay đổi:
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
@@ -141,9 +141,12 @@ export default function PickItemsPage({
   setEditRequests,
   onBack
 }) {
-  const [userIdentified, setUserIdentified] = useState(false);
+  const urlParams = new URLSearchParams(window.location.search);
+  const isHost = urlParams.get('role') === 'host';
+
+  const [userIdentified, setUserIdentified] = useState(isHost);
   const [newMemberName, setNewMemberName] = useState('');
-  const [activeMemberId, setActiveMemberId] = useState('');
+  const [activeMemberId, setActiveMemberId] = useState(isHost ? 'host' : '');
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [lastPaymentAmount, setLastPaymentAmount] = useState(0);
   
@@ -323,49 +326,20 @@ export default function PickItemsPage({
             Chia Tiền Nhóm MoMo
           </h2>
           <p className="subtitle" style={{ marginBottom: '24px' }}>
-            Bạn vừa mở link chia hóa đơn tại <strong>{restaurant}</strong>. Hãy nhập tên để chọn món ăn của bạn.
+            {restaurant && restaurant !== 'Không rõ' ? (
+              <>Bạn vừa mở link chia hóa đơn tại <strong>{restaurant}</strong>. </>
+            ) : (
+              <>Bạn vừa mở link chia hóa đơn. </>
+            )}
+            Vui lòng chọn danh tính của bạn dưới đây để bắt đầu chọn món:
           </p>
 
-          {/* Form to enter name */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginBottom: '24px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              Tên của bạn:
-            </label>
-            <input 
-              type="text" 
-              placeholder="Nhập tên hiển thị..." 
-              value={newMemberName}
-              onChange={(e) => setNewMemberName(e.target.value)}
-              className="price-input"
-              style={{ 
-                width: '100%', 
-                textAlign: 'left', 
-                padding: '12px', 
-                fontSize: '0.95rem',
-                borderRadius: '8px',
-                background: '#f1f5f9',
-                border: '1px solid rgba(0,0,0,0.08)'
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleJoinWithNewName();
-              }}
-            />
-            <button 
-              onClick={handleJoinWithNewName}
-              className="btn btn-primary"
-              disabled={!newMemberName.trim()}
-              style={{ opacity: newMemberName.trim() ? 1 : 0.6, marginTop: '8px' }}
-            >
-              🚀 Tham gia chọn món
-            </button>
-          </div>
-
-          <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '20px' }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
-              Hoặc chọn một danh tính giả lập để test nhanh:
+          <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '10px' }}>
+            <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
+              Danh sách thành viên bàn ăn:
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-              {members.map(m => (
+              {members.filter(m => m.id !== "host").map(m => (
                 <button
                   key={m.id}
                   onClick={() => handleJoinAsExisting(m.id)}
@@ -419,50 +393,22 @@ export default function PickItemsPage({
             Bạn: <span style={{ color: 'var(--color-primary)' }}>{activeMember?.name}</span>
           </span>
         </div>
-        <button 
-          onClick={() => setUserIdentified(false)}
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: 'var(--color-primary)', 
-            fontSize: '0.75rem', 
-            fontWeight: 600, 
-            cursor: 'pointer',
-            textDecoration: 'underline'
-          }}
-        >
-          Đổi vai / Thêm người
-        </button>
-      </div>
-
-      {/* Simulator Switcher Panel */}
-      <div className="glass-card" style={{ background: 'rgba(216, 45, 139, 0.02)', border: '1px dashed rgba(216, 45, 139, 0.3)', marginBottom: '0px' }}>
-        <p className="subtitle" style={{ color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          📱 TRÌNH GIẢ LẬP NHÓM BẠN BÈ
-        </p>
-        <p style={{ fontSize: '0.72rem', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
-          Chuyển nhanh qua vai người khác để tick chọn món ăn của họ (mô phỏng nhiều điện thoại):
-        </p>
-        
-        {/* Member Selector */}
-        <div className="members-list" style={{ marginBottom: 0, paddingBottom: 0 }}>
-          {members.map(member => (
-            <div 
-              key={member.id} 
-              className={`member-pill ${activeMemberId === member.id ? 'active' : ''}`}
-              onClick={() => {
-                setActiveMemberId(member.id);
-                setUserIdentified(true);
-              }}
-              style={{ padding: '6px 12px' }}
-            >
-              <div className={`member-avatar ${member.color}`}>
-                {member.avatar}
-              </div>
-              <span style={{ fontSize: '0.78rem', fontWeight: 500 }}>{member.name.split(' ')[0]}</span>
-            </div>
-          ))}
-        </div>
+        {activeMemberId !== 'host' && (
+          <button 
+            onClick={() => setUserIdentified(false)}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--color-primary)', 
+              fontSize: '0.75rem', 
+              fontWeight: 600, 
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            Đổi vai chọn món
+          </button>
+        )}
       </div>
 
       {/* Dynamic Status Banner */}
@@ -478,7 +424,7 @@ export default function PickItemsPage({
           <div className="alert-note" style={{ background: 'rgba(16,185,129,0.05)', borderLeft: '3px solid var(--color-success)', color: '#065f46', marginBottom: 0 }}>
             <span>⏳</span>
             <div>
-              <strong>Đã gửi phần ăn!</strong> Danh sách món của bạn đã được lưu lại và gửi cho Host (Hoàng Anh) phê duyệt. Vui lòng chờ Host khóa hóa đơn để tiến hành chuyển khoản.
+              <strong>Đã gửi phần ăn!</strong> Danh sách món của bạn đã được lưu lại và gửi cho Host ({members.find(m => m.id === 'host')?.name || 'Tôi'}) phê duyệt. Vui lòng chờ Host khóa hóa đơn để tiến hành chuyển khoản.
             </div>
           </div>
         ) : (
@@ -509,8 +455,10 @@ export default function PickItemsPage({
 
       {/* Bill summary title */}
       <div>
-        <h2 className="title-lg" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🍲 {restaurant}</h2>
-        <p className="subtitle" style={{ fontSize: '0.8rem' }}>Host: Hoàng Anh • Tổng cộng {members.length} người tham gia chia tiền</p>
+        {restaurant && restaurant !== 'Không rõ' && (
+          <h2 className="title-lg" style={{ fontSize: '1.2rem', marginBottom: '4px' }}>🍲 {restaurant}</h2>
+        )}
+        <p className="subtitle" style={{ fontSize: '0.8rem' }}>Host: {members.find(m => m.id === 'host')?.name || 'Tôi'} • Tổng cộng {members.length} người tham gia chia tiền</p>
       </div>
 
       {/* Items picking list */}
@@ -747,15 +695,12 @@ export default function PickItemsPage({
               </>
             ) : (
               <>
-                <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
-                  ✏️ Sửa bill (Host)
-                </button>
                 <button 
                   onClick={onBack} 
                   className="btn btn-primary" 
-                  style={{ flex: 2, background: 'var(--gradient-momo)', border: 'none', boxShadow: 'none' }}
+                  style={{ flex: 1, background: 'var(--gradient-momo)', border: 'none', boxShadow: 'none' }}
                 >
-                  📊 Vào màn hình Duyệt
+                  📊 Quay lại màn hình Duyệt
                 </button>
               </>
             )

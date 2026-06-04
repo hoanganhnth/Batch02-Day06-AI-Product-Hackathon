@@ -82,9 +82,10 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
       setScanStep(0);
       setTimeout(() => setScanStep(1), 700);
       setTimeout(() => setScanStep(2), 1400);
-      setTimeout(() => {
+      setTimeout(async () => {
+        setScanStep(3);
+        await onScanComplete(null);
         setIsScanning(false);
-        onScanComplete(null);
       }, 2200);
       return;
     }
@@ -119,8 +120,9 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
 
       // Small delay for UX feel before navigating
       await new Promise((r) => setTimeout(r, 600));
+      setScanStep(3);
+      await onScanComplete(result);
       setIsScanning(false);
-      onScanComplete(result);
     } catch (err) {
       console.error('Scan error:', err);
       const isNetworkError = err instanceof TypeError && err.message === 'Failed to fetch';
@@ -195,6 +197,7 @@ export default function UploadPage({ setReceiptImage, onScanComplete, setBillIte
               {scanStep === 0 && "Đang đọc ảnh..."}
               {scanStep === 1 && "Nhận diện chữ viết bằng AI..."}
               {scanStep === 2 && "Tách món lẻ và phí chung..."}
+              {scanStep === 3 && "Đang tạo phòng chia tiền..."}
             </button>
           ) : (
             <>
