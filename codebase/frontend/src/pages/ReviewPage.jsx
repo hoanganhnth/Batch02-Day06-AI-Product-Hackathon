@@ -236,8 +236,13 @@ export default function ReviewPage({
                         onChange={(e) => handleQtyChange(item.id, e.target.value)}
                         style={{ width: '40px', background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', color: 'var(--color-text-primary)', textAlign: 'center', borderRadius: '4px' }}
                       />
-                      {item.aiNote && <span style={{ color: 'var(--color-warning)', fontWeight: 500 }}>{item.aiNote}</span>}
                     </div>
+                    {item.aiNote && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#b45309', fontSize: '0.72rem', marginTop: '6px', fontWeight: 500 }}>
+                        <span>💡</span>
+                        <span>{item.aiNote}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="bill-item-price-section">
