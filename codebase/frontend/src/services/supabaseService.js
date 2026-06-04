@@ -103,7 +103,7 @@ export async function createBill(restaurant, items = [], sharedFees = [], receip
   }
 
   // Auto-add Host member by default
-  await addMember(data.id, 'host', 'Hoàng Anh (Host)', 'HA', 'member-avatar-pink');
+  await addMember(data.id, 'host', 'Tôi (Host)', 'T', 'member-avatar-pink');
 
   return data.id;
 }

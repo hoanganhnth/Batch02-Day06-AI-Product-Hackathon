@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function PaymentModal({ amount, memberName, onClose }) {
+export default function PaymentModal({ amount, memberName, onClose, restaurant, hostName = "Tôi (Host)" }) {
   const [step, setStep] = useState('select'); // 'select', 'processing', 'success'
   const [method, setMethod] = useState('momo'); // 'momo', 'vietqr'
   const [useVoucher, setUseVoucher] = useState(true);
@@ -77,9 +77,11 @@ export default function PaymentModal({ amount, memberName, onClose }) {
               <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)', margin: 0 }}>
                 {amount.toLocaleString()} đ
               </h2>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '4px', fontWeight: 500 }}>
-                Nội dung chia: Haidilao Vincom Bà Triệu
-              </p>
+              {restaurant && restaurant !== 'Không rõ' && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '4px', fontWeight: 500 }}>
+                  Nội dung chia: {restaurant}
+                </p>
+              )}
             </div>
 
             {/* Payment Method Tabs */}
@@ -245,7 +247,7 @@ export default function PaymentModal({ amount, memberName, onClose }) {
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--color-text-secondary)' }}>Tài khoản nhận:</span>
-                    <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>NGUYEN HOANG ANH</span>
+                    <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{hostName.toUpperCase()}</span>
                   </div>
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -277,9 +279,11 @@ export default function PaymentModal({ amount, memberName, onClose }) {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--color-text-secondary)' }}>Nội dung chuyển:</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>HAIDILAO {memberName.toUpperCase()}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                        {(restaurant && restaurant !== 'Không rõ') ? `${restaurant.toUpperCase()} ${memberName.toUpperCase()}` : `CHIA TIEN ${memberName.toUpperCase()}`}
+                      </span>
                       <button 
-                        onClick={() => handleCopy(`HAIDILAO ${memberName.toUpperCase()}`, 'msg')}
+                        onClick={() => handleCopy((restaurant && restaurant !== 'Không rõ') ? `${restaurant.toUpperCase()} ${memberName.toUpperCase()}` : `CHIA TIEN ${memberName.toUpperCase()}`, 'msg')}
                         style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)', color: 'var(--color-primary)', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 600 }}
                       >
                         {copiedField === 'msg' ? 'Đã sao chép' : 'Sao chép'}
@@ -338,7 +342,7 @@ export default function PaymentModal({ amount, memberName, onClose }) {
             <p className="subtitle" style={{ fontSize: '0.8rem', marginBottom: '20px' }}>
               {method === 'momo' 
                 ? 'Giao dịch qua ví MoMo đã hoàn tất tức thì'
-                : 'Host (Hoàng Anh) đã nhận được tiền chuyển khoản'
+                : `Host (${hostName}) đã nhận được tiền chuyển khoản`
               }
             </p>
 
@@ -361,7 +365,7 @@ export default function PaymentModal({ amount, memberName, onClose }) {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--color-text-secondary)' }}>Người nhận:</span>
-                <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>Hoàng Anh (Host)</span>
+                <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{hostName}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--color-text-secondary)' }}>Phương thức:</span>

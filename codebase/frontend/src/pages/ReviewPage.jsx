@@ -36,21 +36,21 @@ export default function ReviewPage({
   const [newMemberInput, setNewMemberInput] = useState('');
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [showLockWarningModal, setShowLockWarningModal] = useState(false);
+  const [showLockConfirmModal, setShowLockConfirmModal] = useState(false);
 
-  const getUnselectedItems = () => {
+  const getInvalidSelectionItems = () => {
     return billItems.filter(item => {
       const selections = itemSelections[item.id] || [];
-      return selections.length < item.qty;
+      return selections.length !== item.qty;
     });
   };
 
   const handleLockClick = () => {
-    const unselected = getUnselectedItems();
-    if (unselected.length > 0) {
+    const invalid = getInvalidSelectionItems();
+    if (invalid.length > 0) {
       setShowLockWarningModal(true);
     } else {
-      setBillStatus('locked');
-      if (billId) lockBill(billId, true).catch(console.error);
+      setShowLockConfirmModal(true);
     }
   };
 
@@ -58,6 +58,34 @@ export default function ReviewPage({
     setBillStatus('locked');
     if (billId) lockBill(billId, true).catch(console.error);
     setShowLockWarningModal(false);
+    setShowLockConfirmModal(false);
+  };
+
+  // Add manual item
+  const handleAddItem = () => {
+    const newItem = {
+      id: 'manual_' + Date.now(),
+      name: 'Món ăn mới',
+      qty: 1,
+      price: 0
+    };
+    const newItems = [...billItems, newItem];
+    setBillItems(newItems);
+    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
+  };
+
+  // Delete item
+  const handleDeleteItem = (id) => {
+    const newItems = billItems.filter(item => item.id !== id);
+    setBillItems(newItems);
+    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
+  };
+
+  // Edit item name
+  const handleNameChange = (id, newName) => {
+    const newItems = billItems.map(item => item.id === id ? { ...item, name: newName } : item);
+    setBillItems(newItems);
+    if (billId) updateBill(billId, { items: newItems }).catch(console.error);
   };
 
   // Edit item quantity
@@ -220,8 +248,16 @@ export default function ReviewPage({
       sumRounded += costs[m.id].total;
     });
     
-    // Adjust rounding difference on Host (or first member)
-    const diff = grandTotal - sumRounded;
+    // Adjust rounding difference on Host (or first member) based on selected items only
+    let selectedItemsTotal = 0;
+    billItems.forEach(item => {
+      const selections = itemSelections[item.id] || [];
+      if (selections.length > 0) {
+        selectedItemsTotal += item.price * item.qty;
+      }
+    });
+    const expectedTotal = selectedItemsTotal + feesTotal;
+    const diff = expectedTotal - sumRounded;
     if (diff !== 0 && members.length > 0) {
       const hostMember = members.find(m => m.id === 'host') || members[0];
       if (costs[hostMember.id]) {
@@ -289,18 +325,20 @@ export default function ReviewPage({
       </div>
 
       {/* 2. Restaurant details */}
-      <div className="glass-card" style={{ marginBottom: '0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '1.2rem' }}>🍲</span>
-          <input 
-            type="text" 
-            value={restaurant} 
-            onChange={(e) => setRestaurant(e.target.value)}
-            className="price-input"
-            style={{ width: '100%', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem', background: 'transparent', border: 'none', padding: '0' }}
-          />
+      {restaurant && restaurant !== 'Không rõ' && (
+        <div className="glass-card" style={{ marginBottom: '0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.2rem' }}>🍲</span>
+            <input 
+              type="text" 
+              value={restaurant} 
+              onChange={(e) => setRestaurant(e.target.value)}
+              className="price-input"
+              style={{ width: '100%', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem', background: 'transparent', border: 'none', padding: '0' }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Success Notice when all friends paid */}
       {allFriendsPaid && (
@@ -337,8 +375,24 @@ export default function ReviewPage({
               >
                 <div className="bill-item-main">
                   <div className="bill-item-info">
-                    <div className="bill-item-name" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                      <span style={{ flex: 1 }}>{item.name}</span>
+                    <div className="bill-item-name" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', minWidth: 0 }}>
+                      <input 
+                        type="text" 
+                        value={item.name} 
+                        onChange={(e) => handleNameChange(item.id, e.target.value)}
+                        style={{ 
+                          flex: 1, 
+                          minWidth: 0,
+                          background: 'transparent', 
+                          border: 'none', 
+                          fontWeight: 600, 
+                          fontSize: '0.88rem', 
+                          color: 'var(--color-text-primary)',
+                          padding: 0,
+                          margin: 0,
+                          outline: 'none'
+                        }}
+                      />
                       <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
                         {progressBadge}
                       </div>
@@ -361,7 +415,7 @@ export default function ReviewPage({
                     )}
                   </div>
 
-                  <div className="bill-item-price-section">
+                  <div className="bill-item-price-section" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <div className="price-input-wrapper">
                       <input 
                         type="number" 
@@ -371,6 +425,24 @@ export default function ReviewPage({
                       />
                       <span className="price-currency">đ</span>
                     </div>
+                    <button 
+                      onClick={() => handleDeleteItem(item.id)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--color-danger)',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        opacity: 0.7
+                      }}
+                      title="Xóa món"
+                    >
+                      ✕
+                    </button>
                   </div>
                 </div>
 
@@ -378,6 +450,23 @@ export default function ReviewPage({
               </div>
             );
           })}
+          
+          <button 
+            onClick={handleAddItem}
+            className="btn btn-secondary"
+            style={{ 
+              width: '100%', 
+              padding: '10px', 
+              fontSize: '0.82rem', 
+              fontWeight: 600, 
+              border: '1px dashed var(--color-primary)', 
+              color: 'var(--color-primary)',
+              background: 'rgba(216, 45, 139, 0.02)',
+              marginTop: '4px'
+            }}
+          >
+            ➕ Thêm món ăn mới
+          </button>
         </div>
       </div>
 
@@ -422,12 +511,12 @@ export default function ReviewPage({
                   borderRadius: '10px' 
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span className={`member-avatar ${m.color}`} style={{ width: '20px', height: '20px', fontSize: '0.65rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                  <span className={`member-avatar ${m.color}`} style={{ width: '20px', height: '20px', fontSize: '0.65rem', flexShrink: 0 }}>
                     {m.avatar}
                   </span>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{m.name}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)' }}>
                       Phần tiền: <strong style={{ color: 'var(--color-text-primary)' }}>{cost.toLocaleString()} đ</strong>
                     </div>
@@ -474,8 +563,27 @@ export default function ReviewPage({
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                         <span className="badge" style={{ background: 'rgba(216, 45, 139, 0.08)', color: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', fontSize: '0.65rem', fontWeight: 'bold' }}>
-                          👑 Host (Chờ thanh toán)
+                          👑 Host ({billStatus === 'locked' ? 'Chờ thanh toán' : 'Đang chọn món'})
                         </span>
+                        {billStatus === 'picking' && (
+                          <button 
+                            onClick={onNext}
+                            style={{
+                              padding: '3px 8px',
+                              background: 'var(--gradient-momo)',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '4px',
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              boxShadow: 'var(--shadow-sm)',
+                              marginTop: '2px'
+                            }}
+                          >
+                            🙋 Tự chọn món
+                          </button>
+                        )}
                         {billStatus === 'locked' && (
                           <button 
                             onClick={() => setShowHostPaymentSuccess(true)}
@@ -785,6 +893,11 @@ export default function ReviewPage({
           <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
             Quay lại
           </button>
+          {billStatus === 'picking' && (
+            <button onClick={onNext} className="btn btn-secondary" style={{ flex: 1.2, borderColor: 'var(--color-primary)', color: 'var(--color-primary)', fontWeight: 600 }}>
+              🙋 Tự chọn món
+            </button>
+          )}
           <button onClick={() => setShowShareModal(true)} className="btn btn-primary" style={{ flex: 2, border: 'none', boxShadow: 'none' }}>
             🔗 Gửi nhóm chọn món
           </button>
@@ -854,14 +967,14 @@ export default function ReviewPage({
             </div>
 
             <h3 className="title-lg" style={{ fontSize: '1.2rem', marginBottom: '8px', color: 'var(--color-danger)', fontWeight: 800 }}>
-              Món chưa được chọn!
+              Số lượng chọn chưa khớp!
             </h3>
             
             <p className="subtitle" style={{ fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
-              Phát hiện <strong style={{ color: 'var(--color-danger)' }}>{getUnselectedItems().length} món ăn</strong> chưa có ai chọn:
+              Phát hiện các món ăn có số lượng người chọn chưa khớp (thiếu hoặc thừa) so với hóa đơn gốc:
             </p>
 
-            {/* List of unselected items */}
+            {/* List of invalid items */}
             <div style={{ 
               width: '100%', 
               maxHeight: '120px', 
@@ -874,21 +987,28 @@ export default function ReviewPage({
               textAlign: 'left',
               fontSize: '0.78rem'
             }}>
-              {getUnselectedItems().map(item => (
-                <div key={item.id} style={{ color: 'var(--color-text-primary)', padding: '4px 0', borderBottom: '1px dashed rgba(0,0,0,0.04)', fontWeight: 500 }}>
-                  • {item.name} ({item.qty} x {item.price.toLocaleString()}đ)
-                </div>
-              ))}
+              {getInvalidSelectionItems().map(item => {
+                const selections = itemSelections[item.id] || [];
+                const selectedQty = selections.length;
+                const statusText = selectedQty < item.qty ? 'Thiếu' : 'Thừa';
+                const statusColor = selectedQty < item.qty ? 'var(--color-warning)' : 'var(--color-danger)';
+                return (
+                  <div key={item.id} style={{ color: 'var(--color-text-primary)', padding: '4px 0', borderBottom: '1px dashed rgba(0,0,0,0.04)', fontWeight: 500, display: 'flex', justifyContent: 'space-between' }}>
+                    <span>• {item.name}</span>
+                    <span style={{ color: statusColor, fontWeight: 700 }}>Đã chọn: {selectedQty}/{item.qty} ({statusText})</span>
+                  </div>
+                );
+              })}
             </div>
 
             <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '20px', textAlign: 'center' }}>
-              Nếu vẫn khóa, tiền các món này sẽ không phân bổ cho ai. Bạn có chắc chắn muốn khóa hóa đơn không?
+              Vui lòng điều chỉnh lại cho khớp chính xác số lượng các phần ăn trước khi khóa hóa đơn.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
               <button 
-                onClick={handleConfirmLock}
-                className="btn"
+                onClick={() => setShowLockWarningModal(false)}
+                className="btn btn-primary"
                 style={{ 
                   background: 'var(--gradient-momo)', 
                   color: 'white', 
@@ -900,11 +1020,59 @@ export default function ReviewPage({
                   cursor: 'pointer'
                 }}
               >
-                🔒 Vẫn khóa hóa đơn
+                Quay lại kiểm tra & phân chia
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLockConfirmModal && (
+        <div className="modal-overlay" onClick={() => setShowLockConfirmModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ borderTop: '5px solid var(--color-primary)' }}>
+            <div style={{ 
+              width: '56px', 
+              height: '56px', 
+              borderRadius: '50%', 
+              background: 'rgba(216, 45, 139, 0.1)', 
+              color: 'var(--color-primary)',
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: '1.8rem', 
+              marginBottom: '16px' 
+            }}>
+              🔒
+            </div>
+
+            <h3 className="title-lg" style={{ fontSize: '1.2rem', marginBottom: '8px', fontWeight: 800 }}>
+              Xác nhận khóa hóa đơn?
+            </h3>
+            
+            <p className="subtitle" style={{ fontSize: '0.85rem', marginBottom: '20px', textAlign: 'center', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+              Hóa đơn của cả nhóm đã được phân chia đầy đủ và chính xác 100%. Sau khi khóa, thông tin chọn món không thể thay đổi và bạn bè có thể thực hiện thanh toán ngay.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+              <button 
+                onClick={handleConfirmLock}
+                className="btn btn-primary"
+                style={{ 
+                  background: 'var(--gradient-momo)', 
+                  color: 'white', 
+                  fontSize: '0.85rem',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                🔒 Đồng ý khóa & Chốt tiền
               </button>
               
               <button 
-                onClick={() => setShowLockWarningModal(false)}
+                onClick={() => setShowLockConfirmModal(false)}
                 className="btn btn-secondary"
                 style={{ 
                   padding: '10px', 
@@ -917,7 +1085,7 @@ export default function ReviewPage({
                   fontWeight: 600
                 }}
               >
-                Quay lại kiểm tra
+                Hủy
               </button>
             </div>
           </div>
@@ -926,7 +1094,9 @@ export default function ReviewPage({
       {showHostPaymentSuccess && (
         <PaymentModal 
           amount={calculateMemberCost('host')} 
-          memberName="Hoàng Anh (Host)"
+          memberName={members.find(m => m.id === 'host')?.name || "Tôi (Host)"}
+          hostName={members.find(m => m.id === 'host')?.name || "Tôi (Host)"}
+          restaurant={restaurant}
           onClose={() => {
             setShowHostPaymentSuccess(false);
             setMemberPayments(prev => ({ ...prev, host: true }));
