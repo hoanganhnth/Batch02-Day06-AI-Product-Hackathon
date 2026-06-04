@@ -495,17 +495,17 @@
   }
 
   /* === SLIDE 11: Q&A === */
-  #s11 .content {
+  #s10 .content {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 36px; text-align: center; padding: 80px;
   }
-  #s11 .qa-big {
+  #s10 .qa-big {
     font-family: 'Syne', sans-serif; font-size: 180px; font-weight: 800;
     color: var(--text); line-height: 1; letter-spacing: -6px;
     position: relative; display: inline-block;
   }
-  #s11 .qa-big::after {
+  #s10 .qa-big::after {
     content: 'THANK YOU';
     position: absolute; inset: 0;
     background: linear-gradient(135deg, var(--cyan), #0077ff);
@@ -514,7 +514,7 @@
     transform: translate(4px, 4px);
     z-index: -1;
   }
-  #s11 .qa-sub { font-size: 24px; color: var(--muted); font-weight: 300; }
+  #s10 .qa-sub { font-size: 24px; color: var(--muted); font-weight: 300; }
   .stat-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
   .stat-chip {
     background: var(--card); border: 1px solid var(--border);
@@ -582,7 +582,7 @@
           </div>
         </div>
       </div>
-      <div class="page-num">01 / 11</div>
+      <div class="page-num">01 / 10</div>
     </div>
   </div>
 
@@ -615,7 +615,7 @@
           </div>
         </div>
       </div>
-      <div class="page-num">02 / 11</div>
+      <div class="page-num">02 / 10</div>
     </div>
   </div>
 
@@ -651,7 +651,7 @@
           </div>
         </div>
       </div>
-      <div class="page-num">03 / 11</div>
+      <div class="page-num">03 / 10</div>
     </div>
   </div>
 
@@ -677,7 +677,7 @@
           <div class="tech-tag">Supabase Realtime</div>
         </div>
       </div>
-      <div class="page-num">04 / 11</div>
+      <div class="page-num">04 / 10</div>
     </div>
   </div>
 
@@ -734,7 +734,7 @@
         </div>
         <p class="anim" style="font-size:18px;color:var(--muted);text-align:center;">AI xử lý bước 2 — Con người kiểm soát bước 3, 5, 7 → <span class="accent">Augmentation pattern</span></p>
       </div>
-      <div class="page-num">05 / 11</div>
+      <div class="page-num">05 / 10</div>
     </div>
   </div>
 
@@ -782,7 +782,7 @@
           </div>
         </div>
       </div>
-      <div class="page-num">06 / 11</div>
+      <div class="page-num">06 / 10</div>
     </div>
   </div>
 
@@ -826,7 +826,7 @@
           </div>
         </div>
       </div>
-      <div class="page-num">07 / 11</div>
+      <div class="page-num">07 / 10</div>
     </div>
   </div>
 
@@ -874,7 +874,7 @@
         </div>
         <p class="anim footnote">Tất cả bill đều có ground truth JSON để so sánh automated · Prompt đã qua 3 vòng iteration (v1 → v3)</p>
       </div>
-      <div class="page-num">08 / 11</div>
+      <div class="page-num">08 / 10</div>
     </div>
   </div>
 
@@ -912,67 +912,12 @@
           </div>
         </div>
       </div>
-      <div class="page-num">09 / 11</div>
+      <div class="page-num">09 / 10</div>
     </div>
   </div>
 
-  <!-- ========== SLIDE 10: FAILURE MODES ========== -->
+  <!-- ========== SLIDE 10: Q&A ========== -->
   <div class="slide" id="s10">
-    <div class="slide-inner">
-      <div class="content" style="padding:72px 80px;display:flex;flex-direction:column;gap:36px;">
-        <div>
-          <div class="tag anim"><span class="tag-dot"></span>Failure Modes & Mitigation</div>
-          <h2 class="section-title anim" style="margin-top:16px;">Xử lý <span class="accent">edge cases</span></h2>
-        </div>
-        <div class="failure-grid" style="flex:1;">
-          <div class="failure-card anim">
-            <div class="failure-header">
-              <div class="failure-icon">✍️</div>
-              <h3>Chữ viết tay mờ / xấu</h3>
-            </div>
-            <div>
-              <div class="solution-label">Giải pháp</div>
-              <p>Gắn cờ <span class="code-chip">confidence &lt; 0.7</span> và <span class="code-chip">has_unclear_items: true</span>. UI hiển thị badge cảnh báo yêu cầu Host kiểm tra trước khi chốt.</p>
-            </div>
-          </div>
-          <div class="failure-card anim">
-            <div class="failure-header">
-              <div class="failure-icon">🏷️</div>
-              <h3>Chiết khấu / Khuyến mãi</h3>
-            </div>
-            <div>
-              <div class="solution-label">Giải pháp</div>
-              <p>Prompt AI gom chiết khấu thành dòng <span class="code-chip">negative_fee</span>, phân bổ đều cho bill hoặc cho phép Host gắn vào người cụ thể.</p>
-            </div>
-          </div>
-          <div class="failure-card anim">
-            <div class="failure-header">
-              <div class="failure-icon">🔢</div>
-              <h3>Số lượng theo kg / trọng lượng</h3>
-            </div>
-            <div>
-              <div class="solution-label">Giải pháp</div>
-              <p>AI cho phép <span class="code-chip">quantity: float</span> và <span class="code-chip">unit_price: null</span>. UI hiển thị theo đơn vị gốc, không cố quy đổi sang phần ăn.</p>
-            </div>
-          </div>
-          <div class="failure-card anim">
-            <div class="failure-header">
-              <div class="failure-icon">📐</div>
-              <h3>Bill bị nghiêng / mờ ảnh</h3>
-            </div>
-            <div>
-              <div class="solution-label">Giải pháp</div>
-              <p>AI Preprocessor tự động xoay (EXIF auto-rotate), resize max 2048px, tăng tương phản & độ nét trước khi gọi OCR. Nếu bill vẫn quá mờ (<span class="code-chip">confidence &lt; 0.5</span>), tự động dùng <span class="code-chip">raw_text_fallback</span>.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="page-num">10 / 11</div>
-    </div>
-  </div>
-
-  <!-- ========== SLIDE 11: Q&A ========== -->
-  <div class="slide" id="s11">
     <div class="slide-inner">
       <div class="orb orb-cyan" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
       <div class="content">
@@ -994,7 +939,7 @@
 <div id="nav">
   <button class="nav-btn" id="prevBtn">&#8592;</button>
   <div class="nav-dots" id="dots"></div>
-  <span id="slide-counter">1 / 11</span>
+  <span id="slide-counter">1 / 10</span>
   <button class="nav-btn" id="nextBtn">&#8594;</button>
   <button class="nav-btn" id="fsBtn" title="Fullscreen">⛶</button>
 </div>
