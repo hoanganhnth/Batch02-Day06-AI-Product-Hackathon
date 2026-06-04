@@ -222,10 +222,12 @@ export default function ReviewPage({
               >
                 <div className="bill-item-main">
                   <div className="bill-item-info">
-                    <div className="bill-item-name">
-                      {item.name}
-                      {isLowConf && <span className="badge badge-low-conf">Combo?</span>}
-                      {isMistake && <span className="badge badge-mistake">Nhầm Lẫn AI</span>}
+                    <div className="bill-item-name" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                      <span style={{ flex: 1 }}>{item.name}</span>
+                      <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                        {isLowConf && <span className="badge badge-low-conf" style={{ whiteSpace: 'nowrap' }}>Combo?</span>}
+                        {isMistake && <span className="badge badge-mistake" style={{ whiteSpace: 'nowrap' }}>Nhầm Lẫn AI</span>}
+                      </div>
                     </div>
                     
                     <div className="bill-item-meta">
