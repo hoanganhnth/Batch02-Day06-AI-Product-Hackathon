@@ -610,9 +610,11 @@ export default function PickItemsPage({
         </div>
         
         <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-          <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
-            Sửa bill (Host)
-          </button>
+          {activeMemberId === 'host' && (
+            <button onClick={onBack} className="btn btn-secondary" style={{ flex: 1 }}>
+              Sửa bill (Host)
+            </button>
+          )}
 
           {billStatus === 'picking' ? (
             myStatus === 'submitted' ? (
