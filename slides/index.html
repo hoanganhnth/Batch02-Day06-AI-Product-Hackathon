@@ -838,37 +838,27 @@
           <div class="tag anim"><span class="tag-dot"></span>Test Data</div>
           <h2 class="section-title anim" style="margin-top:16px;">Các loại hóa đơn <span class="accent">thực tế</span> được kiểm thử</h2>
         </div>
-        <div class="test-grid" style="flex:1;">
-          <div class="test-card anim">
-            <div class="test-card-img">🧾</div>
-            <div class="test-card-body">
-              <div class="difficulty diff-easy">Easy</div>
-              <p>Chữ in rõ, ít món, format chuẩn nhà hàng</p>
-              <div class="count">2 bills · Ground truth JSON ✓</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; flex: 1;">
+          <div class="test-card anim" style="display: flex; flex-direction: row; align-items: stretch; background: rgba(0,229,128,0.03); border-color: rgba(0,229,128,0.2);">
+            <div style="flex: 1; padding: 32px; display: flex; flex-direction: column; justify-content: center;">
+              <div class="difficulty diff-easy" style="font-size: 14px; margin-bottom: 16px; width: fit-content;">✅ Success Case</div>
+              <h3 style="font-family: 'Syne', sans-serif; font-size: 26px; color: var(--text); margin-bottom: 12px;">Bill chuẩn nhà hàng</h3>
+              <p style="font-size: 18px; color: var(--muted); line-height: 1.6; margin-bottom: 24px;">AI bóc tách chính xác 100% các món ăn, tự nhận diện đúng VAT và gán tự động vào danh mục dùng chung.</p>
+              <div><span class="code-chip" style="font-size: 15px;">confidence_score: 0.98</span></div>
+            </div>
+            <div style="width: 220px; padding: 24px 24px 24px 0; display: flex; align-items: center;">
+              <img src="../smart-bill-splitting/test_data/bill_01.png" style="width: 100%; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);">
             </div>
           </div>
-          <div class="test-card anim">
-            <div class="test-card-img">📊</div>
-            <div class="test-card-body">
-              <div class="difficulty diff-medium">Medium</div>
-              <p>Có VAT riêng dòng, phí phục vụ 5–10%, nhiều món</p>
-              <div class="count">3 bills · Ground truth JSON ✓</div>
+          <div class="test-card anim" style="display: flex; flex-direction: row; align-items: stretch; background: rgba(255,92,92,0.03); border-color: rgba(255,92,92,0.2);">
+            <div style="flex: 1; padding: 32px; display: flex; flex-direction: column; justify-content: center;">
+              <div class="difficulty diff-hard" style="font-size: 14px; margin-bottom: 16px; width: fit-content;">⚠️ Error Case</div>
+              <h3 style="font-family: 'Syne', sans-serif; font-size: 26px; color: var(--text); margin-bottom: 12px;">Bill chữ viết tay quá mờ</h3>
+              <p style="font-size: 18px; color: var(--muted); line-height: 1.6; margin-bottom: 24px;">Hóa đơn viết tay quá mờ, AI bị nhầm lẫn giữa số lượng và giá tiền. Hệ thống tự động cảnh báo trên UI.</p>
+              <div><span class="code-chip" style="color: var(--red); border-color: rgba(255,92,92,0.3); background: rgba(255,92,92,0.1); font-size: 15px;">confidence_score: 0.42</span></div>
             </div>
-          </div>
-          <div class="test-card anim">
-            <div class="test-card-img">✍️</div>
-            <div class="test-card-body">
-              <div class="difficulty diff-hard">Hard</div>
-              <p>Viết tay, số lượng theo kg, chữ mờ, bill dài</p>
-              <div class="count">2 bills · Ground truth JSON ✓</div>
-            </div>
-          </div>
-          <div class="test-card anim">
-            <div class="test-card-img">🔀</div>
-            <div class="test-card-body">
-              <div class="difficulty diff-edge">Edge Case</div>
-              <p>Khăn lạnh, chiết khấu, combo, phí chia phức tạp</p>
-              <div class="count">2 bills · Ground truth JSON ✓</div>
+            <div style="width: 220px; padding: 24px 24px 24px 0; display: flex; align-items: center;">
+              <img src="../smart-bill-splitting/test_data/bill_06.png" style="width: 100%; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);">
             </div>
           </div>
         </div>
